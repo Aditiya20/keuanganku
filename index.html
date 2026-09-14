@@ -85,6 +85,7 @@
 @media(max-width:800px){.mobile-add-btn{display:block;width:100%;margin:-5px 0 12px;min-height:48px;font-size:13px}.goal-add-mobile{display:block;width:100%;margin:-5px 0 14px;min-height:48px;font-size:13px}}
 .data-tools{margin-top:18px}.data-actions{display:flex;flex-wrap:wrap;gap:9px}.data-actions .btn{min-height:42px}
 @media print{.sidebar,.mobile-head,.bottom-nav,.topbar .actions,.mobile-add-btn,.goal-add-mobile,.modal,.toast{display:none!important}.main{margin:0;padding:20px!important}.page{display:none!important}.page.active{display:block!important}.card,.stat,.report-card{box-shadow:none}.hero{print-color-adjust:exact;-webkit-print-color-adjust:exact}.chart{height:250px}}
+#firebaseStatus,#firebaseStatusMobile{font-weight:600}
 </style>
 </head>
 <body>
@@ -97,10 +98,10 @@
     <button data-page="goals">Target Keuangan</button>
     <button data-page="reports">Laporan</button>
   </nav>
-  <div class="side-bottom"><button class="theme-btn" id="themeBtn">Mode Gelap</button></div>
+  <div class="side-bottom"><div id="firebaseStatus" style="font-size:10px;color:var(--muted);padding:0 12px 10px;line-height:1.4">menghubungkan Firebase...</div><button class="theme-btn" id="themeBtn">Mode Gelap</button></div>
 </aside>
 <main class="main">
-  <header class="mobile-head"><div class="mobile-brand">Adit<span>Finance</span></div><button class="mobile-theme" id="mobileTheme">Mode</button></header>
+  <header class="mobile-head"><div><div class="mobile-brand">Adit<span>Finance</span></div><div id="firebaseStatusMobile" style="font-size:9px;color:var(--muted);margin-top:3px">menghubungkan Firebase...</div></div><button class="mobile-theme" id="mobileTheme">Mode</button></header>
 
   <section class="page active" id="page-dashboard">
     <div class="topbar"><div><h1 class="title">Dashboard</h1><p class="desc">pantau kondisi keuangan dan progress targetmu</p></div><div class="actions"><button class="btn primary" onclick="openTx()">+ Tambah Transaksi</button></div></div>
@@ -156,6 +157,37 @@
 </form></div></div>
 <div class="toast" id="toast"></div>
 
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+  import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
+  import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDVdZsApPQ8yRO46XLH_P4J6Hof4EpAa4s",
+    authDomain: "keuanganku-9512e.firebaseapp.com",
+    projectId: "keuanganku-9512e",
+    storageBucket: "keuanganku-9512e.firebasestorage.app",
+    messagingSenderId: "82721764093",
+    appId: "1:82721764093:web:a812a7814578ae3bcf0494",
+    measurementId: "G-Y48VM6ZK42"
+  };
+
+  try {
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    window.firebaseAPI = {
+      auth, db,
+      signInAnonymously, onAuthStateChanged,
+      doc, getDoc, setDoc
+    };
+    window.dispatchEvent(new Event('firebase-ready'));
+  } catch (error) {
+    console.error('Firebase init error:', error);
+    window.firebaseInitError = error;
+    window.dispatchEvent(new Event('firebase-error'));
+  }
+</script>
 <script>
 const KEY = 'adit_finance_v2';
 const CATS = ['gaji', 'bonus', 'makanan', 'transportasi', 'kebutuhan', 'tagihan', 'hiburan', 'tabungan', 'lainnya'];
@@ -177,6 +209,10 @@ const seed = {
 };
 
 let state = load(), cashChart = null, expChart = null;
+let firebaseUser = null;
+let firebaseReady = false;
+let firebaseSyncing = false;
+let firebaseSyncTimer = null;
 
 function load() {
   try {
@@ -189,6 +225,70 @@ function load() {
 
 function save() {
   localStorage.setItem(KEY, JSON.stringify(state));
+  queueFirebaseSave();
+}
+
+function queueFirebaseSave() {
+  clearTimeout(firebaseSyncTimer);
+  if (!firebaseUser || !firebaseReady) return;
+  firebaseSyncTimer = setTimeout(() => syncStateToFirebase(), 150);
+}
+
+async function syncStateToFirebase() {
+  if (!firebaseUser || !firebaseReady || firebaseSyncing) return;
+  firebaseSyncing = true;
+  try {
+    const { db, doc, setDoc } = window.firebaseAPI;
+    await setDoc(doc(db, 'users', firebaseUser.uid), {
+      transactions: state.transactions,
+      goals: state.goals,
+      dark: !!state.dark,
+      updatedAt: new Date().toISOString()
+    }, { merge: true });
+    setFirebaseStatus('tersimpan di Firebase');
+  } catch (error) {
+    console.error('Firebase save error:', error);
+    setFirebaseStatus('gagal menyimpan ke Firebase');
+    toast('data tersimpan di perangkat, tetapi Firebase gagal menyimpan');
+  } finally {
+    firebaseSyncing = false;
+  }
+}
+
+async function loadStateFromFirebase() {
+  if (!firebaseUser || !firebaseReady) return;
+  try {
+    const { db, doc, getDoc } = window.firebaseAPI;
+    const snap = await getDoc(doc(db, 'users', firebaseUser.uid));
+    if (snap.exists()) {
+      const cloud = snap.data();
+      if (Array.isArray(cloud.transactions) && Array.isArray(cloud.goals)) {
+        state = {
+          transactions: cloud.transactions,
+          goals: cloud.goals,
+          dark: typeof cloud.dark === 'boolean' ? cloud.dark : false
+        };
+        localStorage.setItem(KEY, JSON.stringify(state));
+        applyTheme();
+        renderDashboard();
+        setFirebaseStatus('terhubung • data Firebase aktif');
+      }
+    } else {
+      await syncStateToFirebase();
+      setFirebaseStatus('terhubung • data awal tersimpan');
+    }
+  } catch (error) {
+    console.error('Firebase load error:', error);
+    setFirebaseStatus('Firebase belum siap');
+    toast('Firebase belum bisa membaca data. cek Firestore dan Authentication.');
+  }
+}
+
+function setFirebaseStatus(text) {
+  const el = document.getElementById('firebaseStatus');
+  const mob = document.getElementById('firebaseStatusMobile');
+  if (el) el.textContent = text;
+  if (mob) mob.textContent = text;
 }
 
 function money(n) {
@@ -652,10 +752,42 @@ window.addEventListener('click', function (e) {
   if (e.target === document.getElementById('goalModal')) closeGoal();
 });
 
+async function initFirebaseConnection() {
+  if (window.firebaseInitError) {
+    setFirebaseStatus('Firebase gagal dimuat');
+    return;
+  }
+  if (!window.firebaseAPI) return;
+  firebaseReady = true;
+  const { auth, signInAnonymously, onAuthStateChanged } = window.firebaseAPI;
+  setFirebaseStatus('login Firebase...');
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+      try {
+        await signInAnonymously(auth);
+      } catch (error) {
+        console.error('Firebase anonymous auth error:', error);
+        setFirebaseStatus('Auth Firebase belum aktif');
+        toast('aktifkan Authentication > Anonymous di Firebase');
+      }
+      return;
+    }
+    firebaseUser = user;
+    setFirebaseStatus('mengambil data Firebase...');
+    await loadStateFromFirebase();
+  });
+}
+
+window.addEventListener('firebase-ready', initFirebaseConnection);
+window.addEventListener('firebase-error', () => {
+  setFirebaseStatus('Firebase gagal dimuat');
+});
+
 window.addEventListener('DOMContentLoaded', () => {
   initCategories();
   applyTheme();
   renderDashboard();
+  if (window.firebaseAPI) initFirebaseConnection();
 });
 </script>
 </body>
