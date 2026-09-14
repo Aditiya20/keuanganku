@@ -81,8 +81,8 @@
 @media(max-width:800px){:root{--sidebar:0px}.sidebar{display:none}.main{margin:0;padding:17px 15px 90px;max-width:none}.mobile-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}.mobile-brand{font-size:19px;font-weight:800}.mobile-theme{border:1px solid var(--line);background:var(--card);color:var(--text);padding:9px 11px;border-radius:10px;font-size:11px;font-weight:700}.topbar{align-items:flex-start}.title{font-size:22px}.actions .btn{display:none}.hero{padding:22px;display:block}.balance{font-size:29px}.quote{margin-top:20px;max-width:none}.stats{gap:10px}.stat{padding:15px}.stat strong{font-size:18px}.grid2{gap:12px}.card{padding:16px}.chart{height:240px}.bottom-nav{position:fixed;display:grid;grid-template-columns:repeat(4,1fr);left:9px;right:9px;bottom:max(9px,env(safe-area-inset-bottom));background:var(--card);border:1px solid var(--line);border-radius:17px;padding:6px;z-index:100;box-shadow:0 10px 35px rgba(0,0,0,.12)}.bottom-nav button{padding:10px 3px;font-size:9px}.filters{grid-template-columns:1fr 1fr}.filters .input{grid-column:1/-1}.report-grid{grid-template-columns:1fr 1fr}}
 .goal-add-mobile{display:none}.goal-grid .card{min-height:0}@media(max-width:480px){.goal-add-mobile{display:block}.stats{grid-template-columns:1fr 1fr}.stat strong{font-size:16px}.stat label{font-size:10px}.report-grid{grid-template-columns:1fr}.card-head{align-items:flex-start}.card-head .btn{padding:9px 10px}.form-actions{position:sticky;bottom:0;background:var(--card);padding-top:10px}.modal-box{padding:18px}.filters{grid-template-columns:1fr}.filters .input{grid-column:auto}.hero{border-radius:18px}.balance{font-size:26px}}
 
-.mobile-add-btn{display:none}.goal-add-mobile{display:none}
-@media(max-width:800px){.mobile-add-btn{display:block;width:100%;margin:-5px 0 12px;min-height:48px;font-size:13px}.goal-add-mobile{display:block;width:100%;margin:-5px 0 14px;min-height:48px;font-size:13px}}
+.mobile-add-btn{display:none}.goal-add-mobile{display:none}.mobile-pdf-btn{display:none}
+@media(max-width:800px){.mobile-add-btn{display:block;width:100%;margin:-5px 0 12px;min-height:48px;font-size:13px}.goal-add-mobile{display:block;width:100%;margin:-5px 0 14px;min-height:48px;font-size:13px}.mobile-pdf-btn{display:block;width:100%;margin:-5px 0 14px;min-height:48px;font-size:13px}}
 .data-tools{margin-top:18px}.data-actions{display:flex;flex-wrap:wrap;gap:9px}.data-actions .btn{min-height:42px}
 @media print{.sidebar,.mobile-head,.bottom-nav,.topbar .actions,.mobile-add-btn,.goal-add-mobile,.modal,.toast{display:none!important}.main{margin:0;padding:20px!important}.page{display:none!important}.page.active{display:block!important}.card,.stat,.report-card{box-shadow:none}.hero{print-color-adjust:exact;-webkit-print-color-adjust:exact}.chart{height:250px}}
 </style>
@@ -130,6 +130,7 @@
 
   <section class="page" id="page-reports">
     <div class="topbar"><div><h1 class="title">Laporan</h1><p class="desc">lihat gambaran kondisi keuanganmu</p></div><div class="actions"><button class="btn primary" onclick="downloadPDF()">Unduh PDF</button></div></div>
+    <button class="btn primary mobile-pdf-btn" onclick="downloadPDF()">Unduh PDF Laporan</button>
     <div class="report-grid"><div class="report-card"><div class="report-label">Total Pemasukan</div><span class="report-value green" id="rIncome">Rp0</span></div><div class="report-card"><div class="report-label">Total Pengeluaran</div><span class="report-value red" id="rExpense">Rp0</span></div><div class="report-card"><div class="report-label">Saldo Bersih</div><span class="report-value" id="rNet">Rp0</span></div></div>
     <div class="grid2"><div class="card"><div class="card-head"><div><div class="card-title">Komposisi Pengeluaran</div><div class="card-sub">berdasarkan kategori</div></div></div><div class="chart"><canvas id="expenseChart"></canvas></div></div><div class="card"><div class="card-head"><div><div class="card-title">Ringkasan</div><div class="card-sub">evaluasi keuangan</div></div></div><div id="summary"></div></div></div>
     <div class="card data-tools"><div class="card-head"><div><div class="card-title">Kelola Data</div><div class="card-sub">hapus data yang sudah tidak diperlukan</div></div></div><div class="data-actions"><button class="btn danger" onclick="clearTransactions()">Hapus Semua Transaksi</button><button class="btn danger" onclick="clearGoals()">Hapus Semua Target</button><button class="btn danger" onclick="resetAllData()">Reset Semua Data</button></div></div>
@@ -595,6 +596,116 @@ async function resetAllData() {
   } catch (e) {
     console.error(e);
     toast('Gagal mereset data Firebase');
+  }
+}
+
+// PDF Report
+function downloadPDF() {
+  try {
+    if (!window.jspdf || !window.jspdf.jsPDF) {
+      toast('PDF belum siap, silakan coba lagi...');
+      window.print();
+      return;
+    }
+
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+
+    doc.setFillColor(22, 131, 75);
+    doc.rect(0, 0, 210, 24, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(16);
+    doc.text('Adit Finance - Laporan Keuangan', 14, 16);
+
+    doc.setTextColor(23, 35, 29);
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.text('Tanggal Cetak: ' + new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }), 14, 34);
+
+    const inc = total('income');
+    const out = total('expense');
+    const net = inc - out;
+    const sav = state.transactions.filter(t => t.type === 'expense' && t.category === 'tabungan').reduce((a, t) => a + Number(t.amount), 0);
+
+    doc.setFont('helvetica', 'bold');
+    doc.text('Ringkasan Keuangan', 14, 44);
+    doc.setFont('helvetica', 'normal');
+    doc.text('Total Pemasukan   : ' + money(inc), 14, 52);
+    doc.text('Total Pengeluaran : ' + money(out), 14, 59);
+    doc.text('Saldo Bersih       : ' + money(net), 14, 66);
+    doc.text('Total Tabungan     : ' + money(sav), 14, 73);
+
+    let y = 87;
+    doc.setFont('helvetica', 'bold');
+    doc.text('Target Keuangan', 14, y);
+    y += 7;
+    doc.setFont('helvetica', 'normal');
+
+    if (!state.goals.length) {
+      doc.text('Belum ada target keuangan.', 14, y);
+      y += 10;
+    } else {
+      state.goals.forEach(g => {
+        if (y > 265) { doc.addPage(); y = 20; }
+        const progress = pct(g.current, g.target);
+        doc.setFont('helvetica', 'bold');
+        doc.text(String(g.name).substring(0, 38), 14, y);
+        doc.setFont('helvetica', 'normal');
+        doc.text(money(g.current) + ' / ' + money(g.target) + ' (' + progress.toFixed(1) + '%)', 14, y + 6);
+        doc.text('Deadline: ' + dateID(g.deadline), 14, y + 12);
+        y += 20;
+      });
+    }
+
+    if (y > 255) { doc.addPage(); y = 20; }
+    doc.setFont('helvetica', 'bold');
+    doc.text('Riwayat Transaksi', 14, y);
+    y += 8;
+    doc.setFontSize(8.5);
+    doc.text('Tanggal', 14, y);
+    doc.text('Jenis', 42, y);
+    doc.text('Kategori', 70, y);
+    doc.text('Keterangan', 105, y);
+    doc.text('Nominal', 165, y);
+    doc.line(14, y + 2, 196, y + 2);
+    y += 8;
+
+    const list = [...state.transactions].sort((a, b) => b.date.localeCompare(a.date) || String(b.id).localeCompare(String(a.id)));
+    if (!list.length) {
+      doc.setFont('helvetica', 'normal');
+      doc.text('Belum ada transaksi.', 14, y);
+    } else {
+      list.forEach(t => {
+        if (y > 275) { doc.addPage(); y = 20; }
+        const sign = t.type === 'income' ? '+' : '-';
+        doc.setFont('helvetica', 'normal');
+        doc.text(dateID(t.date), 14, y);
+        doc.text(t.type === 'income' ? 'Pemasukan' : 'Pengeluaran', 42, y);
+        doc.text(cap(t.category), 70, y);
+        let note = String(t.note || '-');
+        if (note.length > 22) note = note.substring(0, 20) + '...';
+        doc.text(note, 105, y);
+        doc.text(sign + money(t.amount), 165, y);
+        y += 7;
+      });
+    }
+
+    const pages = doc.getNumberOfPages();
+    for (let i = 1; i <= pages; i++) {
+      doc.setPage(i);
+      doc.setFontSize(8);
+      doc.setTextColor(113, 128, 120);
+      doc.text('Adit Finance', 14, 290);
+      doc.text('Halaman ' + i + ' / ' + pages, 170, 290);
+    }
+
+    doc.save('Laporan_Keuangan_' + new Date().toISOString().slice(0, 10) + '.pdf');
+    toast('Laporan PDF berhasil diunduh');
+  } catch (e) {
+    console.error('PDF:', e);
+    toast('Gagal membuat PDF, membuka tampilan cetak...');
+    window.print();
   }
 }
 
