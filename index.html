@@ -84,7 +84,12 @@
 .mobile-add-btn{display:none}.goal-add-mobile{display:none}.mobile-pdf-btn{display:none}
 @media(max-width:800px){.mobile-add-btn{display:block;width:100%;margin:-5px 0 12px;min-height:48px;font-size:13px}.goal-add-mobile{display:block;width:100%;margin:-5px 0 14px;min-height:48px;font-size:13px}.mobile-pdf-btn{display:block;width:100%;margin:-5px 0 14px;min-height:48px;font-size:13px}}
 
-.auth-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(7px);display:flex;align-items:center;justify-content:center;padding:18px;z-index:1000}.auth-card{width:min(430px,100%);background:var(--card);color:var(--text);border:1px solid var(--line);border-radius:22px;padding:24px;box-shadow:0 25px 90px rgba(0,0,0,.2)}.auth-title{font-size:22px;font-weight:800;letter-spacing:-.5px}.auth-sub{font-size:12px;color:var(--muted);line-height:1.6;margin-top:7px;margin-bottom:20px}.auth-error{background:var(--redSoft);color:var(--red);border-radius:11px;padding:10px 12px;font-size:11px;line-height:1.5;margin-bottom:12px;display:none}.auth-error.show{display:block}.auth-card .btn{width:100%;min-height:46px}.auth-status{font-size:10px;color:var(--muted);text-align:center;margin-top:12px;line-height:1.5}@media(max-width:480px){.auth-overlay{padding:10px;align-items:flex-end}.auth-card{border-radius:22px 22px 0 0;padding:20px 17px calc(20px + env(safe-area-inset-bottom))}.auth-title{font-size:20px}}
+.auth-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(7px);display:flex;align-items:center;justify-content:center;padding:18px;z-index:1000}
+.auth-card{width:min(430px,100%);background:var(--card);color:var(--text);border:1px solid var(--line);border-radius:22px;padding:24px;box-shadow:0 25px 90px rgba(0,0,0,.2)}
+.auth-title{font-size:22px;font-weight:800;letter-spacing:-.5px}.auth-sub{font-size:12px;color:var(--muted);line-height:1.6;margin:7px 0 20px}
+.auth-error{background:var(--redSoft);color:var(--red);border-radius:11px;padding:10px 12px;font-size:11px;line-height:1.5;margin-bottom:12px;display:none}.auth-error.show{display:block}
+.auth-card .btn{width:100%;min-height:46px}.auth-status{font-size:10px;color:var(--muted);text-align:center;margin-top:12px;line-height:1.5}
+@media(max-width:480px){.auth-overlay{padding:10px;align-items:flex-end}.auth-card{border-radius:22px 22px 0 0;padding:20px 17px calc(20px + env(safe-area-inset-bottom))}}
 
 .data-tools{margin-top:18px}.data-actions{display:flex;flex-wrap:wrap;gap:9px}.data-actions .btn{min-height:42px}
 @media print{.sidebar,.mobile-head,.bottom-nav,.topbar .actions,.mobile-add-btn,.goal-add-mobile,.modal,.toast{display:none!important}.main{margin:0;padding:20px!important}.page{display:none!important}.page.active{display:block!important}.card,.stat,.report-card{box-shadow:none}.hero{print-color-adjust:exact;-webkit-print-color-adjust:exact}.chart{height:250px}}
@@ -160,8 +165,19 @@
 </form></div></div>
 <div class="toast" id="toast"></div>
 
-
-<div class="auth-overlay" id="authOverlay"><div class="auth-card"><div class="auth-title">Adit<span style="color:var(--green)">Finance</span></div><div class="auth-sub">masuk dengan akun Firebase yang sama dengan yang dipakai Adit Finance Bot Telegram supaya transaksi dari Telegram dan website masuk ke data yang sama.</div><div class="auth-error" id="authError"></div><form id="authForm"><div class="field"><label>Email Firebase</label><input class="input" id="authEmail" type="email" autocomplete="email" placeholder="email akun Firebase" required></div><div class="field"><label>Password</label><input class="input" id="authPassword" type="password" autocomplete="current-password" placeholder="password akun Firebase" required></div><button class="btn primary" id="authSubmit" type="submit">Masuk ke Adit Finance</button></form><div class="auth-status">akun ini harus sama dengan akun Email/Password yang dipakai Worker Telegram.</div></div></div>
+<div class="auth-overlay" id="authOverlay" style="display:none">
+  <div class="auth-card">
+    <div class="auth-title">Adit<span style="color:var(--green)">Finance</span></div>
+    <div class="auth-sub">login cukup sekali di perangkat ini. setelah itu Firebase akan mengingat sesi login secara otomatis.</div>
+    <div class="auth-error" id="authError"></div>
+    <form id="authForm">
+      <div class="field"><label>Email Firebase</label><input class="input" id="authEmail" type="email" autocomplete="username" required></div>
+      <div class="field"><label>Password</label><input class="input" id="authPassword" type="password" autocomplete="current-password" required></div>
+      <button class="btn primary" id="authSubmit" type="submit">Masuk ke Adit Finance</button>
+    </form>
+    <div class="auth-status">gunakan akun Email/Password Firebase yang sama dengan Telegram Bot.</div>
+  </div>
+</div>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
@@ -203,14 +219,152 @@ function firebaseStatus(msg, ok=false) {
   });
 }
 
-function showAuthError(message) { const el=document.getElementById('authError'); if(!el)return; el.textContent=message; el.classList.add('show'); }
-function hideAuthError() { const el=document.getElementById('authError'); if(!el)return; el.textContent=''; el.classList.remove('show'); }
-function openAuthOverlay(){ document.getElementById('authOverlay')?.style.setProperty('display','flex'); }
-function closeAuthOverlay(){ document.getElementById('authOverlay')?.style.setProperty('display','none'); }
-function firebaseAuthMessage(code){ const m={'auth/invalid-credential':'email atau password Firebase salah.','auth/wrong-password':'password Firebase salah.','auth/user-not-found':'akun Firebase dengan email ini belum ditemukan.','auth/invalid-email':'format email tidak valid.','auth/user-disabled':'akun Firebase ini dinonaktifkan.','auth/too-many-requests':'terlalu banyak percobaan. tunggu beberapa menit lalu coba lagi.','auth/network-request-failed':'koneksi ke Firebase gagal. cek internet.','auth/operation-not-allowed':'provider Email/Password belum aktif di Firebase Authentication.','auth/invalid-api-key':'Firebase API key tidak valid.','auth/app-not-authorized':'domain GitHub Pages belum diizinkan di Firebase Authentication → Settings → Authorized domains.'}; return m[code]||`login Firebase gagal (${code||'unknown-error'}).`; }
-async function connectFirebaseUser(user){ if(!user)return; try{ FB.uid=user.uid; FB.ready=true; firebaseStatus('terhubung • data Firebase aktif',true); await syncFromFirebase(); closeAuthOverlay(); toast('Firebase terhubung'); }catch(err){ console.error('Firebase sync:',err); FB.ready=false; firebaseStatus('gagal membaca data Firebase'); showAuthError('login berhasil, tetapi data Firebase belum bisa dibaca. cek Firestore Rules.'); openAuthOverlay(); } }
-async function startFirebase(){ firebaseStatus('menunggu login Firebase...'); auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(()=>{}); auth.onAuthStateChanged(async user=>{ if(user && !user.isAnonymous){ await connectFirebaseUser(user); } else { FB.ready=false; FB.uid=null; firebaseStatus('belum login ke Firebase'); openAuthOverlay(); } }); }
-document.getElementById('authForm')?.addEventListener('submit',async function(e){ e.preventDefault(); const email=document.getElementById('authEmail').value.trim(); const password=document.getElementById('authPassword').value; const btn=document.getElementById('authSubmit'); hideAuthError(); btn.disabled=true; btn.textContent='Menghubungkan...'; try{ await auth.signInWithEmailAndPassword(email,password); }catch(err){ console.error('Firebase login:',err); showAuthError(firebaseAuthMessage(err?.code)); }finally{ btn.disabled=false; btn.textContent='Masuk ke Adit Finance'; } });
+let stopRealtimeTx = null;
+let stopRealtimeGoals = null;
+let firstRealtimeLoad = true;
+
+function showAuthError(message) {
+  const el = document.getElementById('authError');
+  if (!el) return;
+  el.textContent = message;
+  el.classList.add('show');
+}
+
+function hideAuthError() {
+  const el = document.getElementById('authError');
+  if (!el) return;
+  el.textContent = '';
+  el.classList.remove('show');
+}
+
+function openAuthOverlay() {
+  const el = document.getElementById('authOverlay');
+  if (el) el.style.display = 'flex';
+}
+
+function closeAuthOverlay() {
+  const el = document.getElementById('authOverlay');
+  if (el) el.style.display = 'none';
+}
+
+function authMessage(code) {
+  const m = {
+    'auth/invalid-credential':'email atau password Firebase salah.',
+    'auth/wrong-password':'password Firebase salah.',
+    'auth/user-not-found':'akun Firebase tidak ditemukan.',
+    'auth/invalid-email':'format email tidak valid.',
+    'auth/user-disabled':'akun Firebase dinonaktifkan.',
+    'auth/too-many-requests':'terlalu banyak percobaan. tunggu sebentar lalu coba lagi.',
+    'auth/network-request-failed':'koneksi ke Firebase gagal.',
+    'auth/operation-not-allowed':'provider Email/Password belum aktif di Firebase.',
+    'auth/invalid-api-key':'Firebase API key tidak valid.',
+    'auth/app-not-authorized':'domain GitHub Pages belum masuk Authorized domains Firebase.'
+  };
+  return m[code] || `login Firebase gagal (${code || 'unknown-error'}).`;
+}
+
+function startRealtimeSync() {
+  if (!FB.ready) return;
+  if (stopRealtimeTx) stopRealtimeTx();
+  if (stopRealtimeGoals) stopRealtimeGoals();
+
+  firstRealtimeLoad = true;
+  firebaseStatus('terhubung • sinkronisasi realtime aktif', true);
+
+  stopRealtimeTx = FB.transactionsRef().onSnapshot(
+    snap => {
+      state.transactions = snap.docs.map(d => {
+        const x = d.data();
+        return {
+          id: String(d.id),
+          type: x.type || 'expense',
+          amount: Number(x.amount) || 0,
+          category: x.category || 'lainnya',
+          date: x.date || '',
+          note: x.note || '-'
+        };
+      });
+      save();
+      refreshActivePage();
+      if (!firstRealtimeLoad) toast('data transaksi diperbarui');
+      firstRealtimeLoad = false;
+    },
+    err => {
+      console.error('Realtime transactions:', err);
+      firebaseStatus('Firebase tersambung, tetapi sinkronisasi transaksi gagal');
+    }
+  );
+
+  stopRealtimeGoals = FB.goalsRef().onSnapshot(
+    snap => {
+      state.goals = snap.docs.map(d => {
+        const x = d.data();
+        return {
+          id: String(d.id),
+          name: x.name || 'Target',
+          target: Number(x.target) || 0,
+          current: Number(x.current) || 0,
+          deadline: x.deadline || ''
+        };
+      });
+      save();
+      refreshActivePage();
+    },
+    err => {
+      console.error('Realtime goals:', err);
+      firebaseStatus('Firebase tersambung, tetapi sinkronisasi target gagal');
+    }
+  );
+}
+
+async function startFirebase() {
+  try {
+    firebaseStatus('memeriksa sesi login...');
+    await auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+
+    auth.onAuthStateChanged(user => {
+      if (user && !user.isAnonymous) {
+        FB.uid = user.uid;
+        FB.ready = true;
+        closeAuthOverlay();
+        firebaseStatus('terhubung • sinkronisasi realtime aktif', true);
+        startRealtimeSync();
+      } else {
+        FB.uid = null;
+        FB.ready = false;
+        firebaseStatus('silakan login ke Firebase');
+        openAuthOverlay();
+      }
+    });
+  } catch (err) {
+    console.error('Firebase init:', err);
+    FB.ready = false;
+    firebaseStatus('Firebase gagal terhubung');
+    openAuthOverlay();
+  }
+}
+
+document.getElementById('authForm')?.addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const email = document.getElementById('authEmail').value.trim();
+  const password = document.getElementById('authPassword').value;
+  const btn = document.getElementById('authSubmit');
+
+  hideAuthError();
+  btn.disabled = true;
+  btn.textContent = 'Menghubungkan...';
+
+  try {
+    await auth.signInWithEmailAndPassword(email, password);
+    document.getElementById('authPassword').value = '';
+  } catch (err) {
+    console.error('Firebase login:', err);
+    showAuthError(authMessage(err?.code));
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Masuk ke Adit Finance';
+  }
+});
 
 async function syncFromFirebase() {
   if (!FB.ready) return;
@@ -341,6 +495,7 @@ async function firebaseResetAll() {
 
 <script>
 const KEY = 'adit_finance_v2';
+// data dirender dari cache lokal dulu, lalu Firebase realtime menggantikan data saat tersedia.
 const CATS = ['gaji', 'bonus', 'makanan', 'transportasi', 'kebutuhan', 'tagihan', 'hiburan', 'tabungan', 'lainnya'];
 const QUOTES = [
   'setiap rupiah yang berhasil kamu pertahankan hari ini adalah langkah menuju hidup yang kamu inginkan.',
