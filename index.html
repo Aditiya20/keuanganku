@@ -85,23 +85,22 @@
 @media(max-width:800px){.mobile-add-btn{display:block;width:100%;margin:-5px 0 12px;min-height:48px;font-size:13px}.goal-add-mobile{display:block;width:100%;margin:-5px 0 14px;min-height:48px;font-size:13px}}
 .data-tools{margin-top:18px}.data-actions{display:flex;flex-wrap:wrap;gap:9px}.data-actions .btn{min-height:42px}
 @media print{.sidebar,.mobile-head,.bottom-nav,.topbar .actions,.mobile-add-btn,.goal-add-mobile,.modal,.toast{display:none!important}.main{margin:0;padding:20px!important}.page{display:none!important}.page.active{display:block!important}.card,.stat,.report-card{box-shadow:none}.hero{print-color-adjust:exact;-webkit-print-color-adjust:exact}.chart{height:250px}}
-#firebaseStatus,#firebaseStatusMobile{font-weight:600}
 </style>
 </head>
 <body>
 <div class="app">
 <aside class="sidebar">
-  <div class="brand"><b>Adit<span>Finance</span></b><small>personal finance dashboard</small></div>
+  <div class="brand"><b>Adit<span>Finance</span></b><small id="firebaseStatusSide">menghubungkan ke Firebase...</small></div>
   <nav class="nav">
     <button class="active" data-page="dashboard">Dashboard</button>
     <button data-page="transactions">Transaksi</button>
     <button data-page="goals">Target Keuangan</button>
     <button data-page="reports">Laporan</button>
   </nav>
-  <div class="side-bottom"><div id="firebaseStatus" style="font-size:10px;color:var(--muted);padding:0 12px 10px;line-height:1.4">menghubungkan Firebase...</div><button class="theme-btn" id="themeBtn">Mode Gelap</button></div>
+  <div class="side-bottom"><button class="theme-btn" id="themeBtn">Mode Gelap</button></div>
 </aside>
 <main class="main">
-  <header class="mobile-head"><div><div class="mobile-brand">Adit<span>Finance</span></div><div id="firebaseStatusMobile" style="font-size:9px;color:var(--muted);margin-top:3px">menghubungkan Firebase...</div></div><button class="mobile-theme" id="mobileTheme">Mode</button></header>
+  <header class="mobile-head"><div><div class="mobile-brand">Adit<span>Finance</span></div><small id="firebaseStatus" style="font-size:9px;color:var(--muted)">menghubungkan ke Firebase...</small></div><button class="mobile-theme" id="mobileTheme">Mode</button></header>
 
   <section class="page active" id="page-dashboard">
     <div class="topbar"><div><h1 class="title">Dashboard</h1><p class="desc">pantau kondisi keuangan dan progress targetmu</p></div><div class="actions"><button class="btn primary" onclick="openTx()">+ Tambah Transaksi</button></div></div>
@@ -157,37 +156,191 @@
 </form></div></div>
 <div class="toast" id="toast"></div>
 
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
-  import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
-  import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyDVdZsApPQ8yRO46XLH_P4J6Hof4EpAa4s",
-    authDomain: "keuanganku-9512e.firebaseapp.com",
-    projectId: "keuanganku-9512e",
-    storageBucket: "keuanganku-9512e.firebasestorage.app",
-    messagingSenderId: "82721764093",
-    appId: "1:82721764093:web:a812a7814578ae3bcf0494",
-    measurementId: "G-Y48VM6ZK42"
-  };
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyDVdZsApPQ8yRO46XLH_P4J6Hof4EpAa4s",
+  authDomain: "keuanganku-9512e.firebaseapp.com",
+  projectId: "keuanganku-9512e",
+  storageBucket: "keuanganku-9512e.firebasestorage.app",
+  messagingSenderId: "82721764093",
+  appId: "1:82721764093:web:a812a7814578ae3bcf0494",
+  measurementId: "G-Y48VM6ZK42"
+};
 
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+const FB = {
+  ready: false,
+  uid: null,
+  userRef() {
+    if (!this.uid) throw new Error("Firebase belum siap.");
+    return db.collection("users").doc(this.uid);
+  },
+  transactionsRef() { return this.userRef().collection("transactions"); },
+  goalsRef() { return this.userRef().collection("goals"); }
+};
+
+function firebaseStatus(msg, ok=false) {
+  ['firebaseStatus','firebaseStatusSide'].forEach(id => {
+    const existing = document.getElementById(id);
+    if (existing) {
+      existing.textContent = msg;
+      existing.style.color = ok ? 'var(--green)' : 'var(--muted)';
+    }
+  });
+}
+
+async function startFirebase() {
   try {
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-    window.firebaseAPI = {
-      auth, db,
-      signInAnonymously, onAuthStateChanged,
-      doc, getDoc, setDoc
-    };
-    window.dispatchEvent(new Event('firebase-ready'));
-  } catch (error) {
-    console.error('Firebase init error:', error);
-    window.firebaseInitError = error;
-    window.dispatchEvent(new Event('firebase-error'));
+    firebaseStatus('menghubungkan ke Firebase...');
+    const cred = await auth.signInAnonymously();
+    FB.uid = cred.user.uid;
+    FB.ready = true;
+    firebaseStatus('terhubung • data Firebase aktif', true);
+
+    await syncFromFirebase();
+    toast('Firebase terhubung');
+  } catch (err) {
+    console.error('Firebase init:', err);
+    FB.ready = false;
+    firebaseStatus('mode offline • data tersimpan di perangkat');
+    toast('Firebase gagal terhubung, mode offline aktif');
   }
+}
+
+async function syncFromFirebase() {
+  if (!FB.ready) return;
+
+  const [txSnap, goalSnap] = await Promise.all([
+    FB.transactionsRef().get(),
+    FB.goalsRef().get()
+  ]);
+
+  const remoteTx = txSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+  const remoteGoals = goalSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+  // Jika Firebase masih kosong, migrasikan data lokal sekali.
+  if (remoteTx.length === 0 && remoteGoals.length === 0) {
+    const localRaw = localStorage.getItem(KEY);
+    let local = null;
+    try { local = localRaw ? JSON.parse(localRaw) : null; } catch {}
+    const source = local && Array.isArray(local.transactions) && Array.isArray(local.goals) ? local : seed;
+
+    const batch = db.batch();
+    source.transactions.forEach(t => {
+      const ref = FB.transactionsRef().doc(String(t.id || Date.now() + Math.random()));
+      batch.set(ref, {
+        type: t.type,
+        amount: Number(t.amount) || 0,
+        category: t.category || 'lainnya',
+        date: t.date || new Date().toISOString().slice(0,10),
+        note: t.note || '-',
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    });
+    source.goals.forEach(g => {
+      const ref = FB.goalsRef().doc(String(g.id || Date.now() + Math.random()));
+      batch.set(ref, {
+        name: g.name || 'Target',
+        target: Number(g.target) || 0,
+        current: Number(g.current) || 0,
+        deadline: g.deadline || '',
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    });
+    await batch.commit();
+
+    state.transactions = source.transactions.map(t => ({...t, id: String(t.id)}));
+    state.goals = source.goals.map(g => ({...g, id: String(g.id)}));
+  } else {
+    state.transactions = remoteTx.map(t => ({
+      id: String(t.id),
+      type: t.type,
+      amount: Number(t.amount) || 0,
+      category: t.category || 'lainnya',
+      date: t.date || '',
+      note: t.note || '-'
+    }));
+    state.goals = remoteGoals.map(g => ({
+      id: String(g.id),
+      name: g.name || 'Target',
+      target: Number(g.target) || 0,
+      current: Number(g.current) || 0,
+      deadline: g.deadline || ''
+    }));
+  }
+
+  save();
+  refreshActivePage();
+}
+
+async function firebaseAddTransaction(tx) {
+  if (!FB.ready) return;
+  const id = String(tx.id);
+  await FB.transactionsRef().doc(id).set({
+    type: tx.type,
+    amount: Number(tx.amount),
+    category: tx.category,
+    date: tx.date,
+    note: tx.note,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  });
+}
+
+async function firebaseDeleteTransaction(id) {
+  if (!FB.ready) return;
+  await FB.transactionsRef().doc(String(id)).delete();
+}
+
+async function firebaseAddGoal(goal) {
+  if (!FB.ready) return;
+  const id = String(goal.id);
+  await FB.goalsRef().doc(id).set({
+    name: goal.name,
+    target: Number(goal.target),
+    current: Number(goal.current),
+    deadline: goal.deadline,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  });
+}
+
+async function firebaseUpdateGoal(goal) {
+  if (!FB.ready) return;
+  await FB.goalsRef().doc(String(goal.id)).set({
+    name: goal.name,
+    target: Number(goal.target),
+    current: Number(goal.current),
+    deadline: goal.deadline
+  }, { merge: true });
+}
+
+async function firebaseDeleteGoal(id) {
+  if (!FB.ready) return;
+  await FB.goalsRef().doc(String(id)).delete();
+}
+
+async function firebaseClearCollection(ref) {
+  if (!FB.ready) return;
+  const snap = await ref.get();
+  if (snap.empty) return;
+  const batch = db.batch();
+  snap.docs.forEach(d => batch.delete(d.ref));
+  await batch.commit();
+}
+
+async function firebaseResetAll() {
+  if (!FB.ready) return;
+  await firebaseClearCollection(FB.transactionsRef());
+  await firebaseClearCollection(FB.goalsRef());
+}
 </script>
+
 <script>
 const KEY = 'adit_finance_v2';
 const CATS = ['gaji', 'bonus', 'makanan', 'transportasi', 'kebutuhan', 'tagihan', 'hiburan', 'tabungan', 'lainnya'];
@@ -209,10 +362,6 @@ const seed = {
 };
 
 let state = load(), cashChart = null, expChart = null;
-let firebaseUser = null;
-let firebaseReady = false;
-let firebaseSyncing = false;
-let firebaseSyncTimer = null;
 
 function load() {
   try {
@@ -225,70 +374,6 @@ function load() {
 
 function save() {
   localStorage.setItem(KEY, JSON.stringify(state));
-  queueFirebaseSave();
-}
-
-function queueFirebaseSave() {
-  clearTimeout(firebaseSyncTimer);
-  if (!firebaseUser || !firebaseReady) return;
-  firebaseSyncTimer = setTimeout(() => syncStateToFirebase(), 150);
-}
-
-async function syncStateToFirebase() {
-  if (!firebaseUser || !firebaseReady || firebaseSyncing) return;
-  firebaseSyncing = true;
-  try {
-    const { db, doc, setDoc } = window.firebaseAPI;
-    await setDoc(doc(db, 'users', firebaseUser.uid), {
-      transactions: state.transactions,
-      goals: state.goals,
-      dark: !!state.dark,
-      updatedAt: new Date().toISOString()
-    }, { merge: true });
-    setFirebaseStatus('tersimpan di Firebase');
-  } catch (error) {
-    console.error('Firebase save error:', error);
-    setFirebaseStatus('gagal menyimpan ke Firebase');
-    toast('data tersimpan di perangkat, tetapi Firebase gagal menyimpan');
-  } finally {
-    firebaseSyncing = false;
-  }
-}
-
-async function loadStateFromFirebase() {
-  if (!firebaseUser || !firebaseReady) return;
-  try {
-    const { db, doc, getDoc } = window.firebaseAPI;
-    const snap = await getDoc(doc(db, 'users', firebaseUser.uid));
-    if (snap.exists()) {
-      const cloud = snap.data();
-      if (Array.isArray(cloud.transactions) && Array.isArray(cloud.goals)) {
-        state = {
-          transactions: cloud.transactions,
-          goals: cloud.goals,
-          dark: typeof cloud.dark === 'boolean' ? cloud.dark : false
-        };
-        localStorage.setItem(KEY, JSON.stringify(state));
-        applyTheme();
-        renderDashboard();
-        setFirebaseStatus('terhubung • data Firebase aktif');
-      }
-    } else {
-      await syncStateToFirebase();
-      setFirebaseStatus('terhubung • data awal tersimpan');
-    }
-  } catch (error) {
-    console.error('Firebase load error:', error);
-    setFirebaseStatus('Firebase belum siap');
-    toast('Firebase belum bisa membaca data. cek Firestore dan Authentication.');
-  }
-}
-
-function setFirebaseStatus(text) {
-  const el = document.getElementById('firebaseStatus');
-  const mob = document.getElementById('firebaseStatusMobile');
-  if (el) el.textContent = text;
-  if (mob) mob.textContent = text;
 }
 
 function money(n) {
@@ -407,26 +492,36 @@ function closeGoal() {
 }
 
 // Data Manipulations
-function removeTx(id) {
-  if (confirm('Apakah Anda yakin ingin menghapus transaksi ini?')) {
-    state.transactions = state.transactions.filter(t => t.id !== id);
+async function removeTx(id) {
+  if (!confirm('Apakah Anda yakin ingin menghapus transaksi ini?')) return;
+  try {
+    await firebaseDeleteTransaction(id);
+    state.transactions = state.transactions.filter(t => String(t.id) !== String(id));
     save();
     toast('Transaksi berhasil dihapus');
     refreshActivePage();
+  } catch (e) {
+    console.error(e);
+    toast('Gagal menghapus transaksi dari Firebase');
   }
 }
 
-function removeGoal(id) {
-  if (confirm('Apakah Anda yakin ingin menghapus target ini?')) {
-    state.goals = state.goals.filter(g => g.id !== id);
+async function removeGoal(id) {
+  if (!confirm('Apakah Anda yakin ingin menghapus target ini?')) return;
+  try {
+    await firebaseDeleteGoal(id);
+    state.goals = state.goals.filter(g => String(g.id) !== String(id));
     save();
     toast('Target berhasil dihapus');
     refreshActivePage();
+  } catch (e) {
+    console.error(e);
+    toast('Gagal menghapus target dari Firebase');
   }
 }
 
-function addToGoal(id) {
-  const goal = state.goals.find(g => g.id === id);
+async function addToGoal(id) {
+  const goal = state.goals.find(g => String(g.id) === String(id));
   if (!goal) return;
   const val = prompt(`Masukkan jumlah dana tambahan untuk target "${goal.name}":`, '100000');
   if (val === null) return;
@@ -435,113 +530,71 @@ function addToGoal(id) {
     toast('Nominal tidak valid');
     return;
   }
-  goal.current += amt;
-  save();
-  toast(`Berhasil menambahkan ${money(amt)} ke target`);
-  refreshActivePage();
+  if (goal.current + amt > goal.target) {
+    toast('Nominal melebihi sisa target');
+    return;
+  }
+  try {
+    goal.current += amt;
+    await firebaseUpdateGoal(goal);
+    save();
+    toast(`Berhasil menambahkan ${money(amt)} ke target`);
+    refreshActivePage();
+  } catch (e) {
+    console.error(e);
+    goal.current -= amt;
+    toast('Gagal memperbarui target di Firebase');
+  }
 }
 
-function clearTransactions() {
-  if (confirm('Apakah Anda yakin ingin menghapus SELUA transaksi?')) {
+async function clearTransactions() {
+  if (!confirm('Apakah Anda yakin ingin menghapus SEMUA transaksi?')) return;
+  try {
+    await firebaseClearCollection(FB.transactionsRef());
     state.transactions = [];
     save();
     toast('Semua transaksi telah dihapus');
     refreshActivePage();
+  } catch (e) {
+    console.error(e);
+    toast('Gagal menghapus transaksi dari Firebase');
   }
 }
 
-function clearGoals() {
-  if (confirm('Apakah Anda yakin ingin menghapus SELUA target keuangan?')) {
+async function clearGoals() {
+  if (!confirm('Apakah Anda yakin ingin menghapus SEMUA target keuangan?')) return;
+  try {
+    await firebaseClearCollection(FB.goalsRef());
     state.goals = [];
     save();
     toast('Semua target telah dihapus');
     refreshActivePage();
+  } catch (e) {
+    console.error(e);
+    toast('Gagal menghapus target dari Firebase');
   }
 }
 
-function resetAllData() {
-  if (confirm('Apakah Anda yakin ingin MERESET seluruh data aplikasi ke awal?')) {
+async function resetAllData() {
+  if (!confirm('Apakah Anda yakin ingin MERESET seluruh data aplikasi ke awal?')) return;
+  try {
+    await firebaseResetAll();
     state = structuredClone(seed);
     save();
     applyTheme();
+    if (FB.ready) {
+      const batch = db.batch();
+      state.goals.forEach(g => batch.set(FB.goalsRef().doc(String(g.id)), {
+        name: g.name, target: g.target, current: g.current, deadline: g.deadline,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      }));
+      await batch.commit();
+    }
     toast('Seluruh data berhasil direset');
     refreshActivePage();
-  }
-}
-
-function downloadPDF() {
-  try {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-
-    doc.setFillColor(22, 131, 75);
-    doc.rect(0, 0, 210, 24, 'F');
-    doc.setTextColor(255, 255, 255);
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(16);
-    doc.text('Adit Finance — Laporan Keuangan', 14, 16);
-
-    doc.setTextColor(23, 35, 29);
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'normal');
-    doc.text(`Tanggal Cetak: ${new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}`, 14, 34);
-
-    const inc = total('income');
-    const out = total('expense');
-    const net = inc - out;
-
-    doc.setFont('helvetica', 'bold');
-    doc.text('Ringkasan Keuangan', 14, 44);
-    doc.setFont('helvetica', 'normal');
-    doc.text(`Total Pemasukan : ${money(inc)}`, 14, 52);
-    doc.text(`Total Pengeluaran: ${money(out)}`, 14, 59);
-    doc.text(`Saldo Bersih       : ${money(net)}`, 14, 66);
-
-    let y = 80;
-    doc.setFont('helvetica', 'bold');
-    doc.text('Riwayat Transaksi', 14, y);
-    y += 8;
-
-    doc.setFontSize(9);
-    doc.text('Tanggal', 14, y);
-    doc.text('Jenis', 42, y);
-    doc.text('Kategori', 70, y);
-    doc.text('Keterangan', 105, y);
-    doc.text('Nominal', 165, y);
-    doc.line(14, y + 2, 196, y + 2);
-    y += 8;
-
-    doc.setFont('helvetica', 'normal');
-    const list = [...state.transactions].sort((a, b) => b.date.localeCompare(a.date));
-
-    if (!list.length) {
-      doc.text('Belum ada transaksi.', 14, y);
-    } else {
-      list.forEach((t) => {
-        if (y > 275) {
-          doc.addPage();
-          y = 20;
-        }
-        const sign = t.type === 'income' ? '+' : '−';
-        doc.text(dateID(t.date), 14, y);
-        doc.text(t.type === 'income' ? 'Pemasukan' : 'Pengeluaran', 42, y);
-        doc.text(cap(t.category), 70, y);
-
-        let noteStr = t.note || '-';
-        if (noteStr.length > 22) noteStr = noteStr.substring(0, 20) + '...';
-        doc.text(noteStr, 105, y);
-
-        doc.text(`${sign}${money(t.amount)}`, 165, y);
-        y += 7;
-      });
-    }
-
-    doc.save(`Laporan_Keuangan_${new Date().toISOString().slice(0, 10)}.pdf`);
-    toast('Laporan PDF berhasil diunduh');
   } catch (e) {
     console.error(e);
-    toast('Gagal membuat PDF, membuka tampilan cetak...');
-    window.print();
+    toast('Gagal mereset data Firebase');
   }
 }
 
@@ -708,8 +761,9 @@ document.querySelectorAll('[data-page]').forEach(b => {
   b.addEventListener('click', () => navigate(b.dataset.page));
 });
 
-document.getElementById('txForm').addEventListener('submit', function (e) {
+document.getElementById('txForm').addEventListener('submit', async function (e) {
   e.preventDefault();
+  const btn = this.querySelector('button[type="submit"]');
   const type = document.getElementById('txType').value;
   const amount = parseFloat(document.getElementById('txAmount').value);
   const category = document.getElementById('txCategory').value;
@@ -721,30 +775,51 @@ document.getElementById('txForm').addEventListener('submit', function (e) {
     return;
   }
 
-  state.transactions.push({ id: Date.now(), type, amount, category, date, note });
-  save();
-  closeTx();
-  toast('Transaksi berhasil disimpan');
-  refreshActivePage();
+  const tx = { id: String(Date.now()), type, amount, category, date, note };
+  btn.disabled = true;
+  try {
+    await firebaseAddTransaction(tx);
+    state.transactions.push(tx);
+    save();
+    closeTx();
+    toast(FB.ready ? 'Transaksi tersimpan ke Firebase' : 'Transaksi tersimpan di perangkat');
+    refreshActivePage();
+  } catch (err) {
+    console.error(err);
+    toast('Gagal menyimpan transaksi ke Firebase');
+  } finally {
+    btn.disabled = false;
+  }
 });
 
-document.getElementById('goalForm').addEventListener('submit', function (e) {
+document.getElementById('goalForm').addEventListener('submit', async function (e) {
   e.preventDefault();
+  const btn = this.querySelector('button[type="submit"]');
   const name = document.getElementById('goalName').value.trim();
   const target = parseFloat(document.getElementById('goalTarget').value);
   const current = parseFloat(document.getElementById('goalCurrent').value) || 0;
   const deadline = document.getElementById('goalDeadline').value;
 
-  if (!name || !target || target <= 0 || !deadline) {
-    toast('Harap lengkapi semua data');
+  if (!name || !target || target <= 0 || current < 0 || current > target || !deadline) {
+    toast(current > target ? 'Dana saat ini tidak boleh melebihi target' : 'Harap lengkapi data dengan benar');
     return;
   }
 
-  state.goals.push({ id: Date.now(), name, target, current, deadline });
-  save();
-  closeGoal();
-  toast('Target keuangan berhasil disimpan');
-  refreshActivePage();
+  const goal = { id: String(Date.now()), name, target, current, deadline };
+  btn.disabled = true;
+  try {
+    await firebaseAddGoal(goal);
+    state.goals.push(goal);
+    save();
+    closeGoal();
+    toast(FB.ready ? 'Target tersimpan ke Firebase' : 'Target tersimpan di perangkat');
+    refreshActivePage();
+  } catch (err) {
+    console.error(err);
+    toast('Gagal menyimpan target ke Firebase');
+  } finally {
+    btn.disabled = false;
+  }
 });
 
 window.addEventListener('click', function (e) {
@@ -752,42 +827,11 @@ window.addEventListener('click', function (e) {
   if (e.target === document.getElementById('goalModal')) closeGoal();
 });
 
-async function initFirebaseConnection() {
-  if (window.firebaseInitError) {
-    setFirebaseStatus('Firebase gagal dimuat');
-    return;
-  }
-  if (!window.firebaseAPI) return;
-  firebaseReady = true;
-  const { auth, signInAnonymously, onAuthStateChanged } = window.firebaseAPI;
-  setFirebaseStatus('login Firebase...');
-  onAuthStateChanged(auth, async (user) => {
-    if (!user) {
-      try {
-        await signInAnonymously(auth);
-      } catch (error) {
-        console.error('Firebase anonymous auth error:', error);
-        setFirebaseStatus('Auth Firebase belum aktif');
-        toast('aktifkan Authentication > Anonymous di Firebase');
-      }
-      return;
-    }
-    firebaseUser = user;
-    setFirebaseStatus('mengambil data Firebase...');
-    await loadStateFromFirebase();
-  });
-}
-
-window.addEventListener('firebase-ready', initFirebaseConnection);
-window.addEventListener('firebase-error', () => {
-  setFirebaseStatus('Firebase gagal dimuat');
-});
-
 window.addEventListener('DOMContentLoaded', () => {
   initCategories();
   applyTheme();
   renderDashboard();
-  if (window.firebaseAPI) initFirebaseConnection();
+  startFirebase();
 });
 </script>
 </body>
