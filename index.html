@@ -141,6 +141,16 @@ body{background:var(--bg);color:var(--ink)}
 @media(max-width:800px){.hero{box-shadow:4px 4px 0 var(--line)}.card,.stat{box-shadow:3px 3px 0 rgba(16,23,19,.10)}}
 .dark{--bg:#111611;--card:#1b241e;--ink:#eef7f0;--line:#e6eee8;--greenSoft:#163d29}.dark .sidebar,.dark .secondary,.dark .goal,.dark .mobile-theme{background:var(--card)}.dark .quote{background:var(--yellow);color:#111}.dark .nav button:hover,.dark .nav button.active,.dark .bottom-nav button.active{color:#111}
 </style>
+
+<style id="month-tx-layout">
+.kpi-extra{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.month-tx-card{grid-column:1 / -1}
+@media(max-width:800px){.kpi-extra{grid-template-columns:1fr 1fr}.month-tx-card{grid-column:1 / -1}}
+#kpi-extra .mini-kpi{text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center}
+#kpi-extra .mini-kpi label,#kpi-extra .mini-kpi small{text-align:center}
+.kpi-extra .mini-kpi{text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.kpi-extra .mini-kpi label,.kpi-extra .mini-kpi small{text-align:center}
+</style>
 </head>
 <body>
 <div class="app">
@@ -169,7 +179,7 @@ body{background:var(--bg);color:var(--ink)}
     <div class="kpi-extra">
       <div class="mini-kpi"><label>Uang Masuk</label><strong class="green" id="dashIncomeShare">0%</strong><small>proporsi dari seluruh arus bulan ini</small></div>
       <div class="mini-kpi"><label>Uang Keluar</label><strong class="red" id="dashExpenseShare">0%</strong><small>proporsi dari seluruh arus bulan ini</small></div>
-      <div class="mini-kpi"><label>Transaksi Bulan Ini</label><strong id="mTxCount">0</strong><small>jumlah aktivitas keuangan</small></div>
+      <div class="mini-kpi month-tx-card"><label>Transaksi Bulan Ini</label><strong id="mTxCount">0</strong><small>jumlah aktivitas keuangan</small></div>
     </div>
     <div class="quick-chart-grid">
       <div class="card"><div class="card-head"><div><div class="chart-card-title">Uang Masuk vs Uang Keluar</div><div class="chart-card-sub">komposisi arus uang bulan ini</div></div></div><div class="chart-card-box"><canvas id="moneyShareChart"></canvas></div></div>
@@ -701,16 +711,28 @@ function closeGoal() {
 
 // Data Manipulations
 async function removeTx(id) {
-  if (!confirm('Apakah Anda yakin ingin menghapus transaksi ini?')) return;
+  if (!FB.ready) {
+    toast('Firebase belum terhubung');
+    return;
+  }
+  const tx = state.transactions.find(t => String(t.id) === String(id));
+  if (!tx) {
+    toast('Transaksi tidak ditemukan');
+    return;
+  }
+  if (!confirm(`Hapus transaksi "${tx.note || '-'}" sebesar ${money(tx.amount)}?`)) return;
   try {
-    await firebaseDeleteTransaction(id);
+    await FB.transactionsRef().doc(String(id)).delete();
     state.transactions = state.transactions.filter(t => String(t.id) !== String(id));
     save();
     toast('Transaksi berhasil dihapus');
+    if (typeof renderDeleteManager === 'function') renderDeleteManager();
     refreshActivePage();
   } catch (e) {
-    console.error(e);
-    toast('Gagal menghapus transaksi dari Firebase');
+    console.error('Hapus transaksi:', e);
+    if (e?.code === 'permission-denied') toast('Firebase menolak penghapusan. cek Firestore Rules');
+    else if (e?.code === 'not-found') toast('Transaksi sudah tidak ada di Firebase');
+    else toast('Gagal menghapus transaksi dari Firebase');
   }
 }
 
