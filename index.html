@@ -712,23 +712,35 @@ function closeGoal() {
 // Data Manipulations
 async function removeTx(id) {
   const txId = String(id);
-  if (!FB.ready || !FB.uid) { toast('Firebase belum terhubung'); return; }
+  if (!FB.ready || !FB.uid) { toast('Firebase belum terhubung / belum login'); return; }
   const tx = state.transactions.find(t => String(t.id) === txId);
   if (!tx) { toast('Transaksi tidak ditemukan'); return; }
   if (!confirm(`Hapus transaksi "${tx.note || '-'}" sebesar ${money(tx.amount)}?`)) return;
+
+  const button = document.querySelector(`.js-delete-tx[data-tx-id="${CSS.escape(txId)}"]`);
+  if (button) { button.disabled = true; button.textContent = 'Menghapus...'; }
   try {
-    const ref = db.collection('users').doc(String(FB.uid)).collection('transactions').doc(txId);
+    const ref = FB.transactionsRef().doc(txId);
+    const snap = await ref.get();
+    if (!snap.exists) {
+      state.transactions = state.transactions.filter(t => String(t.id) !== txId);
+      save(); refreshActivePage(); toast('transaksi sudah tidak ada di Firebase'); return;
+    }
     await ref.delete();
+    const verify = await ref.get();
+    if (verify.exists) throw new Error('dokumen masih ada setelah perintah hapus');
     state.transactions = state.transactions.filter(t => String(t.id) !== txId);
     save();
-    toast('Transaksi berhasil dihapus');
+    toast('transaksi berhasil dihapus permanen');
     refreshActivePage();
   } catch (e) {
-    console.error('Hapus transaksi:', e);
-    const msg = e && e.code ? e.code : '';
-    if (msg === 'permission-denied') toast('hapus ditolak Firebase — cek Firestore Rules');
-    else if (msg === 'not-found') { state.transactions = state.transactions.filter(t => String(t.id) !== txId); save(); refreshActivePage(); toast('transaksi sudah terhapus'); }
-    else toast('gagal menghapus transaksi: ' + (e.message || 'error'));
+    console.error('HAPUS TRANSAKSI:', e);
+    const code = e?.code || '';
+    if (code === 'permission-denied') toast('Firebase menolak DELETE. ubah Firestore Rules agar user boleh delete.');
+    else if (code === 'failed-precondition') toast('Firebase: operasi delete gagal karena precondition/rules.');
+    else toast('gagal hapus: ' + (e?.message || code || 'error tidak diketahui'));
+  } finally {
+    if (button) { button.disabled = false; button.textContent = 'Hapus'; }
   }
 }
 
@@ -998,7 +1010,7 @@ function renderTransactions() {
     body.innerHTML = '<tr><td colspan="6"><div class="empty">data tidak ditemukan.</div></td></tr>';
     return;
   }
-  body.innerHTML = a.map(t => `<tr><td>${dateID(t.date)}</td><td class="${t.type === 'income' ? 'green' : 'red'}" style="font-weight:800">${t.type === 'income' ? 'Pemasukan' : 'Pengeluaran'}</td><td>${cap(t.category)}</td><td>${esc(t.note)}</td><td class="${t.type === 'income' ? 'green' : 'red'}" style="font-weight:800">${t.type === 'income' ? '+' : '−'}${money(t.amount)}</td><td><button class="btn danger" type="button" onclick="removeTx(${JSON.stringify(String(t.id))})">Hapus</button></td></tr>`).join('');
+  body.innerHTML = a.map(t => `<tr><td>${dateID(t.date)}</td><td class="${t.type === 'income' ? 'green' : 'red'}" style="font-weight:800">${t.type === 'income' ? 'Pemasukan' : 'Pengeluaran'}</td><td>${cap(t.category)}</td><td>${esc(t.note)}</td><td class="${t.type === 'income' ? 'green' : 'red'}" style="font-weight:800">${t.type === 'income' ? '+' : '−'}${money(t.amount)}</td><td><button class="btn danger js-delete-tx" type="button" data-tx-id="${esc(String(t.id))}">Hapus</button></td></tr>`).join('');
 }
 
 function renderGoals() {
@@ -1117,6 +1129,14 @@ function renderCharts() {
 }
 
 // Event Listeners Initialization
+document.addEventListener('click', (event) => {
+  const btn = event.target.closest('.js-delete-tx');
+  if (!btn) return;
+  event.preventDefault();
+  event.stopPropagation();
+  removeTx(btn.dataset.txId);
+});
+
 document.getElementById('themeBtn').onclick = toggleTheme;
 document.getElementById('mobileTheme').onclick = toggleTheme;
 
