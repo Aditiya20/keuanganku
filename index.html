@@ -12,80 +12,124 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
-:root{--green:#16834b;--green-dark:#0c6b3d;--green-soft:#eaf7ef;--yellow:#ffc928;--yellow-soft:#fff7d8;--white:#fff;--cream:#fbfcf8;--ink:#18301f;--muted:#6c7b72;--line:#18301f;--red:#df4d4d;--red-soft:#fff0f0;--shadow:5px 5px 0 var(--ink);--shadow-sm:3px 3px 0 var(--ink);--radius:20px;--sidebar:255px}
-*{box-sizing:border-box;margin:0;padding:0}html{scroll-behavior:smooth}body{font-family:Inter,system-ui,sans-serif;background:var(--cream);color:var(--ink);min-height:100vh}button,input,select{font:inherit}button{cursor:pointer}button:disabled{opacity:.55;cursor:not-allowed}.app{min-height:100vh}
-.sidebar{position:fixed;inset:0 auto 0 0;width:var(--sidebar);background:var(--white);border-right:2px solid var(--ink);padding:24px 17px;z-index:50;display:flex;flex-direction:column}.brand{padding:6px 12px 28px}.brand b{font-size:24px;letter-spacing:-1px}.brand b span,.mobile-brand span{color:var(--green)}.brand small{display:block;color:var(--muted);font-size:10px;margin-top:6px;line-height:1.4}.nav{display:grid;gap:8px}.nav button,.bottom-nav button{border:2px solid transparent;background:transparent;color:var(--muted);font-size:12px;font-weight:800;border-radius:13px;transition:.18s}.nav button{text-align:left;padding:12px 14px}.nav button:hover,.nav button.active,.bottom-nav button.active{background:var(--yellow);color:var(--ink);border-color:var(--ink);box-shadow:var(--shadow-sm);transform:translate(-1px,-1px)}.side-bottom{margin-top:auto}.theme-btn{width:100%;padding:11px;border:2px solid var(--ink);background:var(--white);color:var(--ink);border-radius:13px;font-size:11px;font-weight:800;box-shadow:var(--shadow-sm)}
-.main{margin-left:var(--sidebar);padding:30px;max-width:1500px}.mobile-head{display:none}.page{display:none}.page.active{display:block}.topbar{display:flex;justify-content:space-between;align-items:flex-end;gap:15px;margin-bottom:22px}.title{font-size:31px;font-weight:900;letter-spacing:-1.2px}.desc{font-size:12px;color:var(--muted);margin-top:6px}.actions{display:flex;gap:9px}.btn{border:2px solid var(--ink);border-radius:12px;padding:10px 15px;font-size:11px;font-weight:900;transition:.18s;box-shadow:var(--shadow-sm)}.btn:hover{transform:translate(-1px,-1px);box-shadow:4px 4px 0 var(--ink)}.primary{background:var(--green);color:#fff}.primary:hover{background:var(--green-dark)}.secondary{background:var(--white);color:var(--ink)}.danger{background:var(--red-soft);color:var(--red);border-color:var(--red)}
-.hero{position:relative;overflow:hidden;background:var(--green);color:#fff;border:2px solid var(--ink);border-radius:24px;padding:27px;display:flex;align-items:center;justify-content:space-between;gap:25px;margin-bottom:17px;box-shadow:var(--shadow)}.hero:before{content:"";position:absolute;width:220px;height:220px;border:2px dashed rgba(255,255,255,.35);border-radius:50%;right:-75px;top:-90px}.hero:after{content:"";position:absolute;width:100px;height:100px;background:var(--yellow);border:2px solid var(--ink);border-radius:50%;right:80px;bottom:-65px}.hero-content{position:relative;z-index:2}.hero-label{font-size:11px;font-weight:800;opacity:.8;margin-bottom:8px;text-transform:uppercase;letter-spacing:.7px}.balance{font-size:38px;font-weight:900;letter-spacing:-1.5px;word-break:break-word}.hero-note{font-size:10px;opacity:.75;margin-top:7px}.quote{position:relative;z-index:3;max-width:470px;background:var(--white);color:var(--ink);border:2px solid var(--ink);border-radius:16px;padding:15px 17px;font-size:12px;line-height:1.65;box-shadow:var(--shadow-sm)}.quote small{display:block;color:var(--green);font-weight:900;text-transform:uppercase;font-size:9px;letter-spacing:.6px;margin-bottom:5px}
-.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin-bottom:17px}.stat,.card,.report-card{background:var(--white);border:2px solid var(--ink);border-radius:var(--radius);box-shadow:var(--shadow-sm)}.stat{padding:18px}.stat label,.report-label{font-size:10px;color:var(--muted);font-weight:800}.stat strong{display:block;font-size:21px;margin-top:9px;letter-spacing:-.5px}.green{color:var(--green)}.red{color:var(--red)}.stat small{display:block;color:var(--muted);font-size:9px;margin-top:6px}.yellow-text{color:#9b7300}
-.grid2{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(320px,1fr);gap:17px;margin-bottom:17px}.card{padding:20px;min-width:0}.card-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:16px}.card-title{font-size:14px;font-weight:900}.card-sub{font-size:10px;color:var(--muted);margin-top:4px;line-height:1.45}.chart{height:280px;position:relative}.goals{display:grid;gap:12px}.goal{border:2px solid var(--ink);border-radius:15px;padding:14px;background:var(--cream)}.goal:nth-child(even){background:var(--yellow-soft)}.goal-head{display:flex;justify-content:space-between;gap:10px}.goal-name{font-size:12px;font-weight:900}.goal-pct{color:var(--green);font-size:11px;font-weight:900}.goal-money{font-size:10px;color:var(--muted);margin-top:6px}.progress{height:10px;background:#e9eee9;border:1px solid var(--ink);border-radius:99px;overflow:hidden;margin-top:10px}.bar{height:100%;background:var(--yellow);border-right:1px solid var(--ink);border-radius:inherit;transition:width .35s}.goal-foot{font-size:9px;color:var(--muted);margin-top:7px}
-.transactions{display:grid}.tx{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:13px 0;border-bottom:2px dashed #d9e2dc}.tx:last-child{border-bottom:0}.tx-left{display:flex;align-items:center;gap:11px;min-width:0}.mark{width:38px;height:38px;border:2px solid var(--ink);border-radius:11px;display:grid;place-items:center;font-weight:900;font-size:14px;flex:none;box-shadow:2px 2px 0 var(--ink)}.mark.in{background:var(--green-soft);color:var(--green)}.mark.out{background:var(--red-soft);color:var(--red)}.tx-info{min-width:0}.tx-name{font-size:11px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.tx-meta{font-size:9px;color:var(--muted);margin-top:3px}.tx-amount{font-size:11px;font-weight:900;white-space:nowrap}.empty{text-align:center;color:var(--muted);font-size:11px;padding:30px 10px}
-.filters{display:grid;grid-template-columns:minmax(180px,1fr) 170px 170px;gap:9px;margin-bottom:15px}.input,.select{width:100%;padding:11px 12px;border:2px solid var(--ink);border-radius:11px;background:var(--white);color:var(--ink);outline:0;font-size:11px}.input:focus,.select:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(22,131,75,.12)}.table-wrap{overflow:auto}table{width:100%;min-width:680px;border-collapse:separate;border-spacing:0}th{padding:11px 10px;text-align:left;color:var(--muted);font-size:9px;text-transform:uppercase;border-bottom:2px solid var(--ink)}td{padding:12px 10px;font-size:10px;border-bottom:1px dashed #ccd8d0}tr:last-child td{border-bottom:0}
-.report-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:13px;margin-bottom:17px}.report-card{padding:18px}.report-value{display:block;font-size:21px;font-weight:900;margin-top:8px}.goal-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px}.modal{position:fixed;inset:0;background:rgba(24,48,31,.5);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;padding:18px;z-index:200}.modal.show{display:flex}.modal-box{width:min(500px,100%);background:var(--white);border:2px solid var(--ink);border-radius:22px;padding:22px;box-shadow:8px 8px 0 var(--ink);max-height:92vh;overflow:auto}.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}.modal-title{font-size:17px;font-weight:900}.close{border:2px solid var(--ink);background:var(--yellow);color:var(--ink);width:34px;height:34px;border-radius:10px;font-size:21px;line-height:1;font-weight:900}.field{margin-bottom:13px}.field label{display:block;font-size:10px;font-weight:900;margin-bottom:6px}.form-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}.toast{position:fixed;right:20px;bottom:20px;z-index:500;background:var(--ink);color:#fff;padding:12px 15px;border:2px solid var(--ink);border-radius:12px;font-size:10px;font-weight:800;opacity:0;transform:translateY(10px);pointer-events:none;transition:.25s;box-shadow:var(--shadow-sm);max-width:320px}.toast.show{opacity:1;transform:none}.bottom-nav{display:none}
-.auth-overlay{position:fixed;inset:0;background:rgba(24,48,31,.55);backdrop-filter:blur(7px);display:flex;align-items:center;justify-content:center;padding:18px;z-index:1000}.auth-card{width:min(430px,100%);background:var(--white);color:var(--ink);border:2px solid var(--ink);border-radius:22px;padding:24px;box-shadow:8px 8px 0 var(--ink)}.auth-title{font-size:23px;font-weight:900}.auth-title span{color:var(--green)}.auth-sub{font-size:11px;color:var(--muted);line-height:1.6;margin:7px 0 20px}.auth-error{background:var(--red-soft);color:var(--red);border:2px solid var(--red);border-radius:11px;padding:10px 12px;font-size:10px;line-height:1.5;margin-bottom:12px;display:none}.auth-error.show{display:block}.auth-card .btn{width:100%;min-height:46px}.auth-status{font-size:9px;color:var(--muted);text-align:center;margin-top:12px;line-height:1.5}
-.data-tools{margin-top:17px}.data-actions{display:flex;flex-wrap:wrap;gap:9px}.data-actions .btn{min-height:40px}.mobile-add-btn,.goal-add-mobile,.mobile-pdf-btn{display:none}
-/* dekorasi gaya creator/card: tetap AditFinance, bukan branding Saweria */
-.sticker{display:inline-block;background:var(--yellow);border:2px solid var(--ink);padding:5px 9px;border-radius:9px;font-size:9px;font-weight:900;box-shadow:var(--shadow-sm);transform:rotate(-2deg)}.section-note{background:var(--green-soft);border:2px solid var(--green);border-radius:13px;padding:11px 13px;font-size:10px;line-height:1.5;margin-bottom:14px}.delete-zone{background:#fffaf0;border:2px dashed var(--ink);border-radius:15px;padding:15px;margin-top:15px}.delete-zone h3{font-size:12px;font-weight:900;margin-bottom:4px}.delete-zone p{font-size:9px;color:var(--muted);line-height:1.5}
+:root{
+  --green:#16834b;--green2:#0e693b;--greenSoft:#eaf7ef;
+  --yellow:#ffc928;--yellowSoft:#fff7d8;--red:#df4d4d;--redSoft:#fff0f0;
+  --text:#17351f;--muted:#68776e;--bg:#fbfcf8;--card:#fff;--line:#17351f;
+  --shadow:5px 5px 0 var(--line);--shadowSm:3px 3px 0 var(--line);
+  --r:18px;--sidebar:250px
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:Inter,system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+button,input,select{font:inherit}button{cursor:pointer}button:disabled{opacity:.55;cursor:not-allowed}
+.app{min-height:100vh}
+.sidebar{position:fixed;inset:0 auto 0 0;width:var(--sidebar);background:var(--card);border-right:2px solid var(--line);padding:24px 17px;z-index:50;display:flex;flex-direction:column}
+.brand{padding:4px 12px 27px}.brand b{font-size:23px;letter-spacing:-.8px}.brand b span,.mobile-brand span{color:var(--green)}
+.brand small{display:block;color:var(--muted);font-size:10px;margin-top:5px}
+.nav{display:grid;gap:7px}.nav button,.bottom-nav button{border:2px solid transparent;background:transparent;color:var(--muted);font-size:12px;font-weight:800;border-radius:13px;transition:.18s}
+.nav button{text-align:left;padding:12px 14px}.nav button:hover,.nav button.active,.bottom-nav button.active{background:var(--yellow);color:var(--text);border-color:var(--line);box-shadow:var(--shadowSm);transform:translate(-1px,-1px)}
+.side-bottom{margin-top:auto}.theme-btn{width:100%;padding:11px;border:2px solid var(--line);background:var(--card);color:var(--text);border-radius:13px;font-size:11px;font-weight:800;box-shadow:var(--shadowSm)}
+.main{margin-left:var(--sidebar);padding:28px;max-width:1500px}.mobile-head{display:none}.page{display:none}.page.active{display:block}
+.topbar{display:flex;justify-content:space-between;align-items:flex-end;gap:15px;margin-bottom:22px}.title{font-size:30px;font-weight:900;letter-spacing:-1px}.desc{font-size:12px;color:var(--muted);margin-top:5px}
+.actions{display:flex;gap:8px}.btn{border:2px solid var(--line);border-radius:12px;padding:10px 15px;font-size:11px;font-weight:900;transition:.18s;box-shadow:var(--shadowSm)}
+.btn:hover{transform:translate(-1px,-1px);box-shadow:4px 4px 0 var(--line)}.primary{background:var(--green);color:#fff}.primary:hover{background:var(--green2)}
+.secondary{background:var(--card);color:var(--text)}.danger{background:var(--redSoft);color:var(--red);border-color:var(--red)}
+.hero{position:relative;overflow:hidden;background:var(--green);color:#fff;border:2px solid var(--line);border-radius:22px;padding:27px;display:flex;align-items:center;justify-content:space-between;gap:25px;margin-bottom:17px;box-shadow:var(--shadow)}
+.hero:before{content:"";position:absolute;width:220px;height:220px;border:2px dashed rgba(255,255,255,.35);border-radius:50%;right:-75px;top:-90px}
+.hero:after{content:"";position:absolute;width:90px;height:90px;background:var(--yellow);border:2px solid var(--line);border-radius:50%;right:80px;bottom:-58px}
+.hero>div{position:relative;z-index:2}.hero-label{font-size:11px;font-weight:800;opacity:.8;margin-bottom:8px;text-transform:uppercase;letter-spacing:.6px}
+.balance{font-size:38px;font-weight:900;letter-spacing:-1.5px;word-break:break-word}.hero-note{font-size:10px;opacity:.75;margin-top:7px}
+.quote{position:relative;z-index:3;max-width:470px;background:var(--card);color:var(--text);border:2px solid var(--line);border-radius:16px;padding:15px 17px;font-size:12px;line-height:1.65;box-shadow:var(--shadowSm)}
+.quote small{display:block;color:var(--green);font-weight:900;text-transform:uppercase;font-size:9px;letter-spacing:.6px;margin-bottom:5px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin-bottom:17px}
+.stat,.card,.report-card{background:var(--card);border:2px solid var(--line);border-radius:var(--r);box-shadow:var(--shadowSm)}
+.stat{padding:18px}.stat label,.report-label{font-size:10px;color:var(--muted);font-weight:800}.stat strong{display:block;font-size:21px;margin-top:9px;letter-spacing:-.5px}.green{color:var(--green)}.red{color:var(--red)}.stat small{display:block;color:var(--muted);font-size:9px;margin-top:6px}
+.grid2{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(320px,1fr);gap:17px;margin-bottom:17px}.card{padding:20px;min-width:0}
+.card-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:16px}.card-title{font-size:14px;font-weight:900}.card-sub{font-size:10px;color:var(--muted);margin-top:4px;line-height:1.45}.chart{height:280px;position:relative}
+.goals{display:grid;gap:12px}.goal{border:2px solid var(--line);border-radius:15px;padding:14px;background:var(--bg)}.goal:nth-child(even){background:var(--yellowSoft)}
+.goal-head{display:flex;justify-content:space-between;gap:10px}.goal-name{font-size:12px;font-weight:900}.goal-pct{color:var(--green);font-size:11px;font-weight:900}.goal-money{font-size:10px;color:var(--muted);margin-top:6px}
+.progress{height:10px;background:#e9eee9;border:1px solid var(--line);border-radius:99px;overflow:hidden;margin-top:10px}.bar{height:100%;background:var(--yellow);border-right:1px solid var(--line);border-radius:inherit;transition:width .35s}.goal-foot{font-size:9px;color:var(--muted);margin-top:7px}
+.transactions{display:grid}.tx{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:13px 0;border-bottom:2px dashed #d6e1d9}.tx:last-child{border-bottom:0}
+.tx-left{display:flex;align-items:center;gap:11px;min-width:0}.mark{width:38px;height:38px;border:2px solid var(--line);border-radius:11px;display:grid;place-items:center;font-weight:900;font-size:14px;flex:none;box-shadow:2px 2px 0 var(--line)}
+.mark.in{background:var(--greenSoft);color:var(--green)}.mark.out{background:var(--redSoft);color:var(--red)}.tx-info{min-width:0}.tx-name{font-size:11px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.tx-meta{font-size:9px;color:var(--muted);margin-top:3px}.tx-amount{font-size:11px;font-weight:900;white-space:nowrap}
+.empty{text-align:center;color:var(--muted);font-size:11px;padding:30px 10px}
+.filters{display:grid;grid-template-columns:minmax(180px,1fr) 170px 170px;gap:9px;margin-bottom:15px}.input,.select{width:100%;padding:11px 12px;border:2px solid var(--line);border-radius:11px;background:var(--card);color:var(--text);outline:0;font-size:11px}.input:focus,.select:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(22,131,75,.12)}
+.table-wrap{overflow:auto}table{width:100%;min-width:680px;border-collapse:separate;border-spacing:0}th{padding:11px 10px;text-align:left;color:var(--muted);font-size:9px;text-transform:uppercase;border-bottom:2px solid var(--line)}td{padding:12px 10px;font-size:10px;border-bottom:1px dashed #ccd8d0}tr:last-child td{border-bottom:0}
+.report-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:13px;margin-bottom:17px}.report-card{padding:18px}.report-value{display:block;font-size:21px;font-weight:900;margin-top:8px}.goal-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px}
+.modal{position:fixed;inset:0;background:rgba(23,53,31,.52);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;padding:18px;z-index:200}.modal.show{display:flex}
+.modal-box{width:min(500px,100%);background:var(--card);border:2px solid var(--line);border-radius:21px;padding:22px;box-shadow:8px 8px 0 var(--line);max-height:92vh;overflow:auto}.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}.modal-title{font-size:17px;font-weight:900}
+.close{border:2px solid var(--line);background:var(--yellow);color:var(--text);width:34px;height:34px;border-radius:10px;font-size:21px;line-height:1;font-weight:900}.field{margin-bottom:13px}.field label{display:block;font-size:10px;font-weight:900;margin-bottom:6px}
+.form-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}.toast{position:fixed;right:20px;bottom:20px;z-index:500;background:var(--line);color:#fff;padding:12px 15px;border:2px solid var(--line);border-radius:12px;font-size:10px;font-weight:800;opacity:0;transform:translateY(10px);pointer-events:none;transition:.25s;max-width:320px;box-shadow:var(--shadowSm)}.toast.show{opacity:1;transform:none}
+.bottom-nav{display:none}.data-tools{margin-top:17px}.data-actions{display:flex;flex-wrap:wrap;gap:9px}
+.auth-overlay{position:fixed;inset:0;background:rgba(23,53,31,.55);backdrop-filter:blur(7px);display:flex;align-items:center;justify-content:center;padding:18px;z-index:1000}
+.auth-card{width:min(430px,100%);background:var(--card);color:var(--text);border:2px solid var(--line);border-radius:22px;padding:24px;box-shadow:8px 8px 0 var(--line)}.auth-title{font-size:23px;font-weight:900}.auth-title span{color:var(--green)}
+.auth-sub{font-size:11px;color:var(--muted);line-height:1.6;margin:7px 0 20px}.auth-error{background:var(--redSoft);color:var(--red);border:2px solid var(--red);border-radius:11px;padding:10px 12px;font-size:10px;line-height:1.5;margin-bottom:12px;display:none}.auth-error.show{display:block}.auth-card .btn{width:100%;min-height:46px}.auth-status{font-size:9px;color:var(--muted);text-align:center;margin-top:12px;line-height:1.5}
+.dark{--bg:#101812;--card:#18251c;--text:#eff8f1;--muted:#9aaba0;--line:#d9f0df;--green:#55c77c;--green2:#37a660;--greenSoft:#173b28;--yellow:#ffd34d;--yellowSoft:#403b18;--red:#ff7777;--redSoft:#3d2020}
+.dark .sidebar{background:#18251c}.dark .hero{background:#126a3e}.dark .progress{background:#26372c}.dark .theme-btn,.dark .input,.dark .select{background:var(--card);color:var(--text)}
 @media(max-width:1150px){.stats{grid-template-columns:repeat(2,1fr)}.grid2{grid-template-columns:1fr}.goal-grid{grid-template-columns:1fr}}
-@media(max-width:800px){.sidebar{display:none}.main{margin:0;padding:16px 14px 94px;max-width:none}.mobile-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}.mobile-brand{font-size:20px;font-weight:900}.mobile-theme{border:2px solid var(--ink);background:var(--yellow);color:var(--ink);padding:8px 11px;border-radius:10px;font-size:10px;font-weight:900;box-shadow:var(--shadow-sm)}.topbar{align-items:flex-start;margin-bottom:16px}.title{font-size:24px;line-height:1.15}.desc{font-size:11px;line-height:1.5}.actions .btn{display:none}.hero{padding:20px;border-radius:20px;display:block}.balance{font-size:29px}.quote{margin-top:19px;max-width:none;font-size:11px}.stats{gap:9px}.stat{padding:15px;border-radius:16px}.stat strong{font-size:17px}.grid2{gap:12px}.card{padding:16px;border-radius:17px}.chart{height:240px}.card-title{font-size:13px}.goal-grid{gap:12px}.bottom-nav{position:fixed;display:grid;grid-template-columns:repeat(4,1fr);left:9px;right:9px;bottom:max(9px,env(safe-area-inset-bottom));background:var(--white);border:2px solid var(--ink);border-radius:17px;padding:6px;z-index:100;box-shadow:5px 5px 0 var(--ink)}.bottom-nav button{padding:9px 3px;font-size:8px}.filters{grid-template-columns:1fr 1fr}.filters .input{grid-column:1/-1}.report-grid{grid-template-columns:1fr 1fr}.mobile-add-btn,.goal-add-mobile,.mobile-pdf-btn{display:block;width:100%;margin:-4px 0 12px;min-height:46px}.modal{padding:10px;align-items:flex-end}.modal-box{width:100%;max-width:none;border-radius:22px 22px 0 0;padding:19px 16px calc(18px + env(safe-area-inset-bottom));max-height:94vh}.form-actions{position:sticky;bottom:0;background:var(--white);padding-top:10px}.form-actions .btn{flex:1}.toast{left:14px;right:14px;bottom:calc(82px + env(safe-area-inset-bottom));max-width:none;text-align:center}.delete-zone{margin-top:12px}}
-@media(max-width:480px){.stats{grid-template-columns:1fr 1fr}.stat strong{font-size:15px}.stat label{font-size:9px}.report-grid{grid-template-columns:1fr}.filters{grid-template-columns:1fr}.filters .input{grid-column:auto}.hero{border-radius:18px}.balance{font-size:26px}.card-head{align-items:flex-start}.card-head .btn{padding:8px 9px}.mobile-add-btn,.goal-add-mobile,.mobile-pdf-btn{font-size:11px}}
-@media print{.sidebar,.mobile-head,.bottom-nav,.topbar .actions,.mobile-add-btn,.goal-add-mobile,.mobile-pdf-btn,.modal,.toast{display:none!important}.main{margin:0;padding:20px!important}.page{display:none!important}.page.active{display:block!important}.card,.stat,.report-card{box-shadow:none}.hero{print-color-adjust:exact;-webkit-print-color-adjust:exact}.chart{height:250px}}
-</style><body>
+@media(max-width:800px){
+ body{font-size:15px}.sidebar{display:none}.main{margin:0;padding:17px 15px 90px;max-width:none}.mobile-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}.mobile-brand{font-size:19px;font-weight:800}
+ .mobile-theme{border:2px solid var(--line);background:var(--card);color:var(--text);padding:9px 11px;border-radius:10px;font-size:11px;font-weight:800;box-shadow:var(--shadowSm)}
+ .topbar{align-items:flex-start}.title{font-size:23px}.actions .btn{display:none}.hero{padding:22px;display:block}.balance{font-size:29px}.quote{margin-top:20px;max-width:none}
+ .stats{gap:10px}.stat{padding:15px}.stat strong{font-size:18px}.grid2{gap:12px}.card{padding:16px}.chart{height:240px}.bottom-nav{position:fixed;display:grid;grid-template-columns:repeat(4,1fr);left:9px;right:9px;bottom:max(9px,env(safe-area-inset-bottom));background:var(--card);border:2px solid var(--line);border-radius:17px;padding:6px;z-index:100;box-shadow:var(--shadow)}
+ .bottom-nav button{padding:10px 3px;font-size:9px}.filters{grid-template-columns:1fr}.filters .input{grid-column:auto}.report-grid{grid-template-columns:1fr 1fr}.mobile-add-btn,.mobile-delete-btn,.goal-add-mobile,.mobile-pdf-btn{display:block;width:100%;margin:-5px 0 14px;min-height:48px}
+ .modal{padding:10px;align-items:flex-end}.modal-box{width:100%;max-width:none;border-radius:22px 22px 0 0;padding:20px 17px calc(18px + env(safe-area-inset-bottom));max-height:94vh}
+ .form-actions{gap:9px}.form-actions .btn{flex:1}.toast{left:14px;right:14px;bottom:calc(82px + env(safe-area-inset-bottom));max-width:none;text-align:center}
+}
+@media(max-width:480px){.stats{grid-template-columns:1fr 1fr}.stat strong{font-size:16px}.report-grid{grid-template-columns:1fr}.card-head{align-items:flex-start}.hero{border-radius:18px}.balance{font-size:26px}.filters{grid-template-columns:1fr}}
+@media print{.sidebar,.mobile-head,.bottom-nav,.topbar .actions,.mobile-add-btn,.goal-add-mobile,.modal,.toast{display:none!important}.main{margin:0;padding:20px!important}.page{display:none!important}.page.active{display:block!important}.card,.stat,.report-card{box-shadow:none}.hero{print-color-adjust:exact;-webkit-print-color-adjust:exact}}
+</style>
+</head>
+<body>
 <div class="app">
-  <aside class="sidebar">
-    <div class="brand"><b>Adit<span>Finance</span></b><small id="firebaseStatusSide">menghubungkan ke Firebase...</small></div>
-    <nav class="nav">
-      <button class="active" data-page="dashboard">Dashboard</button>
-      <button data-page="transactions">Transaksi</button>
-      <button data-page="goals">Target Keuangan</button>
-      <button data-page="reports">Laporan & Kelola Data</button>
-    </nav>
-    <div class="side-bottom"><button class="theme-btn" id="themeBtn">Mode Gelap</button></div>
-  </aside>
-  <main class="main">
-    <header class="mobile-head"><div><div class="mobile-brand">Adit<span>Finance</span></div><small id="firebaseStatus" style="font-size:8px;color:var(--muted)">menghubungkan ke Firebase...</small></div><button class="mobile-theme" id="mobileTheme">Mode</button></header>
+<aside class="sidebar">
+  <div class="brand"><b>Adit<span>Finance</span></b><small id="firebaseStatusSide">menghubungkan ke Firebase...</small></div>
+  <nav class="nav">
+    <button class="active" data-page="dashboard">Dashboard</button>
+    <button data-page="transactions">Transaksi</button>
+    <button data-page="goals">Target Keuangan</button>
+    <button data-page="reports">Laporan</button>
+  </nav>
+  <div class="side-bottom"><button class="theme-btn" id="themeBtn">Mode Gelap</button></div>
+</aside>
+<main class="main">
+  <header class="mobile-head"><div><div class="mobile-brand">Adit<span>Finance</span></div><small id="firebaseStatus" style="font-size:9px;color:var(--muted)">menghubungkan ke Firebase...</small></div><button class="mobile-theme" id="mobileTheme">Mode</button></header>
 
-    <section class="page active" id="page-dashboard">
-      <div class="topbar"><div><span class="sticker">PERSONAL FINANCE</span><h1 class="title" style="margin-top:10px">Dashboard</h1><p class="desc">lihat uangmu, atur targetmu, dan tetap pegang kendali.</p></div><div class="actions"><button class="btn primary" onclick="openTx()">+ Tambah Transaksi</button></div></div>
-      <div class="hero"><div class="hero-content"><div class="hero-label">Saldo Saat Ini</div><div class="balance" id="balance">Rp0</div><div class="hero-note">saldo dihitung otomatis dari seluruh transaksi</div></div><div class="quote"><small>pengingat hari ini</small><span id="quote"></span></div></div>
-      <div class="stats">
-        <div class="stat"><label>Pemasukan Bulan Ini</label><strong class="green" id="mIncome">Rp0</strong><small>total pemasukan</small></div>
-        <div class="stat"><label>Pengeluaran Bulan Ini</label><strong class="red" id="mExpense">Rp0</strong><small>total pengeluaran</small></div>
-        <div class="stat"><label>Ditabung Bulan Ini</label><strong class="green" id="mSaving">Rp0</strong><small>kategori tabungan</small></div>
-        <div class="stat"><label>Saving Rate</label><strong class="green" id="savingRate">0%</strong><small>dari pemasukan bulan ini</small></div>
-      </div>
-      <div class="section-note"><b>aturan sederhana:</b> catat semua pemasukan dan pengeluaran, lalu gunakan target untuk uang yang memang ingin kamu kumpulkan.</div>
-      <div class="grid2">
-        <div class="card"><div class="card-head"><div><div class="card-title">Cashflow 6 Bulan</div><div class="card-sub">bandingkan pemasukan dan pengeluaran dari waktu ke waktu</div></div></div><div class="chart"><canvas id="cashflowChart"></canvas></div></div>
-        <div class="card"><div class="card-head"><div><div class="card-title">Target Keuangan</div><div class="card-sub">progress target utama kamu</div></div><button class="btn secondary" onclick="navigate('goals')">Lihat Semua</button></div><div class="goals" id="dashGoals"></div></div>
-      </div>
-      <div class="card"><div class="card-head"><div><div class="card-title">Transaksi Terbaru</div><div class="card-sub">aktivitas keuangan terakhir</div></div><button class="btn secondary" onclick="navigate('transactions')">Semua Transaksi</button></div><div class="transactions" id="recent"></div></div>
-    </section>
+  <section class="page active" id="page-dashboard">
+    <div class="topbar"><div><h1 class="title">Dashboard</h1><p class="desc">pantau kondisi keuangan dan progress targetmu</p></div><div class="actions"><button class="btn secondary" onclick="openDeleteManager()">Hapus Transaksi</button><button class="btn primary" onclick="openTx()">+ Tambah Transaksi</button></div></div>
+    <div class="hero"><div><div class="hero-label">Saldo Saat Ini</div><div class="balance" id="balance">Rp0</div><div class="hero-note">saldo dihitung otomatis dari seluruh transaksi</div></div><div class="quote"><small>pengingat hari ini</small><span id="quote"></span></div></div>
+    <div class="stats">
+      <div class="stat"><label>Pemasukan Bulan Ini</label><strong class="green" id="mIncome">Rp0</strong><small>total pemasukan</small></div>
+      <div class="stat"><label>Pengeluaran Bulan Ini</label><strong class="red" id="mExpense">Rp0</strong><small>total pengeluaran</small></div>
+      <div class="stat"><label>Ditabung Bulan Ini</label><strong class="green" id="mSaving">Rp0</strong><small>kategori tabungan</small></div>
+      <div class="stat"><label>Saving Rate</label><strong class="green" id="savingRate">0%</strong><small>dari pemasukan bulan ini</small></div>
+    </div>
+    <div class="grid2">
+      <div class="card"><div class="card-head"><div><div class="card-title">Cashflow</div><div class="card-sub">pemasukan dan pengeluaran 6 bulan terakhir</div></div></div><div class="chart"><canvas id="cashflowChart"></canvas></div></div>
+      <div class="card"><div class="card-head"><div><div class="card-title">Target Keuangan</div><div class="card-sub">fokus utama kamu</div></div><button class="btn secondary" onclick="navigate('goals')">Lihat Semua</button></div><div class="goals" id="dashGoals"></div></div>
+    </div>
+    <div class="card"><div class="card-head"><div><div class="card-title">Transaksi Terbaru</div><div class="card-sub">aktivitas keuangan terakhir</div></div><button class="btn secondary" onclick="navigate('transactions')">Semua Transaksi</button></div><div class="transactions" id="recent"></div></div>
+  </section>
 
-    <section class="page" id="page-transactions">
-      <div class="topbar"><div><span class="sticker">CATAT & KONTROL</span><h1 class="title" style="margin-top:10px">Transaksi</h1><p class="desc">cari, filter, tambah, atau hapus transaksi yang salah input.</p></div><div class="actions"><button class="btn primary" onclick="openTx()">+ Tambah Transaksi</button></div></div>
-      <button class="btn primary mobile-add-btn" onclick="openTx()">+ Tambah Transaksi</button>
-      <div class="card">
-        <div class="section-note"><b>hapus transaksi:</b> kalau ada salah input, gunakan tombol <b>Hapus</b> pada baris transaksi. data akan dihapus dari Firebase setelah konfirmasi.</div>
-        <div class="filters"><input class="input" id="search" placeholder="cari keterangan atau kategori..." oninput="renderTransactions()"><select class="select" id="typeFilter" onchange="renderTransactions()"><option value="all">Semua Jenis</option><option value="income">Pemasukan</option><option value="expense">Pengeluaran</option></select><select class="select" id="catFilter" onchange="renderTransactions()"><option value="all">Semua Kategori</option></select></div>
-        <div class="table-wrap"><table><thead><tr><th>Tanggal</th><th>Jenis</th><th>Kategori</th><th>Keterangan</th><th>Nominal</th><th>Aksi</th></tr></thead><tbody id="txTable"></tbody></table></div>
-      </div>
-      <div class="delete-zone"><h3>Pengelolaan transaksi</h3><p>fitur hapus per transaksi tersedia di tabel di atas. gunakan “Hapus Semua Transaksi” hanya jika memang ingin membersihkan seluruh riwayat.</p></div>
-    </section>
+  <section class="page" id="page-transactions">
+    <div class="topbar"><div><h1 class="title">Transaksi</h1><p class="desc">tambah, cari, filter, dan hapus transaksi</p></div><div class="actions"><button class="btn primary" onclick="openTx()">+ Tambah Transaksi</button></div></div>
+    <button class="btn primary mobile-add-btn" onclick="openTx()">+ Tambah Transaksi</button><button class="btn danger mobile-delete-btn" onclick="openDeleteManager()">Kelola Hapus Transaksi</button><div class="card"><div class="filters"><input class="input" id="search" placeholder="cari keterangan atau kategori..." oninput="renderTransactions()"><select class="select" id="typeFilter" onchange="renderTransactions()"><option value="all">Semua Jenis</option><option value="income">Pemasukan</option><option value="expense">Pengeluaran</option></select><select class="select" id="catFilter" onchange="renderTransactions()"><option value="all">Semua Kategori</option></select></div><div class="table-wrap"><table><thead><tr><th>Tanggal</th><th>Jenis</th><th>Kategori</th><th>Keterangan</th><th>Nominal</th><th>Aksi</th></tr></thead><tbody id="txTable"></tbody></table></div></div>
+  </section>
 
-    <section class="page" id="page-goals">
-      <div class="topbar"><div><span class="sticker">FINANCIAL GOALS</span><h1 class="title" style="margin-top:10px">Target Keuangan</h1><p class="desc">bangun target finansial sedikit demi sedikit.</p></div><div class="actions"><button class="btn primary" onclick="openGoal()">+ Tambah Target</button></div></div>
-      <button class="btn primary goal-add-mobile" onclick="openGoal()">+ Tambah Target Keuangan</button><div class="goal-grid" id="goalGrid"></div>
-    </section>
+  <section class="page" id="page-goals">
+    <div class="topbar"><div><h1 class="title">Target Keuangan</h1><p class="desc">bangun target finansial sedikit demi sedikit</p></div><div class="actions"><button class="btn primary" onclick="openGoal()">+ Tambah Target</button></div></div>
+    <button class="btn primary goal-add-mobile" onclick="openGoal()">+ Tambah Target Keuangan</button><div class="goal-grid" id="goalGrid"></div>
+  </section>
 
-    <section class="page" id="page-reports">
-      <div class="topbar"><div><span class="sticker">REVIEW KEUANGAN</span><h1 class="title" style="margin-top:10px">Laporan</h1><p class="desc">lihat gambaran besar dan kelola data keuanganmu.</p></div><div class="actions"><button class="btn primary" onclick="downloadPDF()">Unduh PDF</button></div></div>
-      <button class="btn primary mobile-pdf-btn" onclick="downloadPDF()">Unduh PDF Laporan</button>
-      <div class="report-grid"><div class="report-card"><div class="report-label">Total Pemasukan</div><span class="report-value green" id="rIncome">Rp0</span></div><div class="report-card"><div class="report-label">Total Pengeluaran</div><span class="report-value red" id="rExpense">Rp0</span></div><div class="report-card"><div class="report-label">Saldo Bersih</div><span class="report-value" id="rNet">Rp0</span></div></div>
-      <div class="grid2"><div class="card"><div class="card-head"><div><div class="card-title">Komposisi Pengeluaran</div><div class="card-sub">berdasarkan kategori</div></div></div><div class="chart"><canvas id="expenseChart"></canvas></div></div><div class="card"><div class="card-head"><div><div class="card-title">Ringkasan</div><div class="card-sub">evaluasi kondisi keuangan</div></div></div><div id="summary"></div></div></div>
-      <div class="card data-tools"><div class="card-head"><div><div class="card-title">Kelola Data</div><div class="card-sub">gunakan dengan hati-hati karena penghapusan bersifat permanen di Firebase.</div></div></div><div class="data-actions"><button class="btn danger" onclick="clearTransactions()">Hapus Semua Transaksi</button><button class="btn danger" onclick="clearGoals()">Hapus Semua Target</button><button class="btn danger" onclick="resetAllData()">Reset Semua Data</button></div></div>
-    </section>
-  </main>
+  <section class="page" id="page-reports">
+    <div class="topbar"><div><h1 class="title">Laporan</h1><p class="desc">lihat gambaran kondisi keuanganmu</p></div><div class="actions"><button class="btn primary" onclick="downloadPDF()">Unduh PDF</button></div></div>
+    <button class="btn primary mobile-pdf-btn" onclick="downloadPDF()">Unduh PDF Laporan</button>
+    <div class="report-grid"><div class="report-card"><div class="report-label">Total Pemasukan</div><span class="report-value green" id="rIncome">Rp0</span></div><div class="report-card"><div class="report-label">Total Pengeluaran</div><span class="report-value red" id="rExpense">Rp0</span></div><div class="report-card"><div class="report-label">Saldo Bersih</div><span class="report-value" id="rNet">Rp0</span></div></div>
+    <div class="grid2"><div class="card"><div class="card-head"><div><div class="card-title">Komposisi Pengeluaran</div><div class="card-sub">berdasarkan kategori</div></div></div><div class="chart"><canvas id="expenseChart"></canvas></div></div><div class="card"><div class="card-head"><div><div class="card-title">Ringkasan</div><div class="card-sub">evaluasi keuangan</div></div></div><div id="summary"></div></div></div>
+    <div class="card data-tools"><div class="card-head"><div><div class="card-title">Kelola Data</div><div class="card-sub">hapus data yang sudah tidak diperlukan</div></div></div><div class="data-actions"><button class="btn danger" onclick="clearTransactions()">Hapus Semua Transaksi</button><button class="btn danger" onclick="clearGoals()">Hapus Semua Target</button><button class="btn danger" onclick="resetAllData()">Reset Semua Data</button></div></div>
+  </section>
+</main>
 </div>
 <nav class="bottom-nav"><button class="active" data-page="dashboard">Dashboard</button><button data-page="transactions">Transaksi</button><button data-page="goals">Target</button><button data-page="reports">Laporan</button></nav>
 
@@ -98,6 +142,18 @@
   <div class="form-actions"><button type="button" class="btn secondary" onclick="closeTx()">Batal</button><button class="btn primary" type="submit">Simpan Transaksi</button></div>
 </form></div></div>
 
+
+<div class="modal" id="deleteTxModal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div><div class="modal-title">Hapus Transaksi</div><div class="card-sub">cari transaksi yang salah input lalu hapus</div></div>
+      <button class="close" onclick="closeDeleteManager()">×</button>
+    </div>
+    <div class="field"><label>Cari transaksi</label><input class="input" id="deleteTxSearch" placeholder="contoh: gaji, makan, transportasi..." oninput="renderDeleteManager()"></div>
+    <div class="field"><label>Jenis</label><select class="select" id="deleteTxType" onchange="renderDeleteManager()"><option value="all">Semua</option><option value="income">Pemasukan</option><option value="expense">Pengeluaran</option></select></div>
+    <div id="deleteTxList"></div>
+  </div>
+</div>
 <div class="modal" id="goalModal"><div class="modal-box"><div class="modal-head"><div class="modal-title">Tambah Target</div><button class="close" onclick="closeGoal()">×</button></div><form id="goalForm">
   <div class="field"><label>Nama Target</label><input class="input" id="goalName" maxlength="50" placeholder="contoh: Dana Rumah" required></div>
   <div class="field"><label>Target Dana</label><input class="input" id="goalTarget" type="number" min="1" step="1" placeholder="contoh: 100000000" required></div>
@@ -107,13 +163,20 @@
 </form></div></div>
 <div class="toast" id="toast"></div>
 
-<div class="auth-overlay" id="authOverlay" style="display:none"><div class="auth-card">
-  <div class="auth-title">Adit<span>Finance</span></div>
-  <div class="auth-sub">login cukup sekali di perangkat ini. setelah itu Firebase akan mengingat sesi login secara otomatis.</div>
-  <div class="auth-error" id="authError"></div>
-  <form id="authForm"><div class="field"><label>Email Firebase</label><input class="input" id="authEmail" type="email" autocomplete="username" required></div><div class="field"><label>Password</label><input class="input" id="authPassword" type="password" autocomplete="current-password" required></div><button class="btn primary" id="authSubmit" type="submit">Masuk ke Adit Finance</button></form>
-  <div class="auth-status">gunakan akun Email/Password Firebase yang sama dengan Telegram Bot.</div>
-</div></div>
+<div class="auth-overlay" id="authOverlay" style="display:none">
+  <div class="auth-card">
+    <div class="auth-title">Adit<span style="color:var(--green)">Finance</span></div>
+    <div class="auth-sub">login cukup sekali di perangkat ini. setelah itu Firebase akan mengingat sesi login secara otomatis.</div>
+    <div class="auth-error" id="authError"></div>
+    <form id="authForm">
+      <div class="field"><label>Email Firebase</label><input class="input" id="authEmail" type="email" autocomplete="username" required></div>
+      <div class="field"><label>Password</label><input class="input" id="authPassword" type="password" autocomplete="current-password" required></div>
+      <button class="btn primary" id="authSubmit" type="submit">Masuk ke Adit Finance</button>
+    </form>
+    <div class="auth-status">gunakan akun Email/Password Firebase yang sama dengan Telegram Bot.</div>
+  </div>
+</div>
+
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
@@ -309,7 +372,7 @@ async function syncFromFirebase() {
     FB.goalsRef().get()
   ]);
 
-  const remoteTx = txSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+  const remoteTx = txSnap.docs.map(d => ({ id: d.id, ...d.data() })).filter(t => !t._deleted);
   const remoteGoals = goalSnap.docs.map(d => ({ id: d.id, ...d.data() }));
 
   // Jika Firebase masih kosong, migrasikan data lokal sekali.
@@ -526,15 +589,17 @@ function navigate(page) {
 
 function applyTheme() {
   document.body.classList.toggle('dark', !!state.dark);
-  document.getElementById('themeBtn').textContent = state.dark ? 'Mode Terang' : 'Mode Gelap';
-  document.getElementById('mobileTheme').textContent = state.dark ? 'Terang' : 'Mode';
+  const side = document.getElementById('themeBtn');
+  const mobile = document.getElementById('mobileTheme');
+  if (side) side.textContent = state.dark ? 'Mode Terang' : 'Mode Gelap';
+  if (mobile) mobile.textContent = state.dark ? 'Terang' : 'Mode';
+  if (cashChart || expChart) setTimeout(renderCharts, 0);
 }
 
 function toggleTheme() {
   state.dark = !state.dark;
   save();
   applyTheme();
-  renderCharts();
 }
 
 function initCategories() {
@@ -579,18 +644,115 @@ function closeGoal() {
   document.getElementById('goalModal').classList.remove('show');
 }
 
+
+function openDeleteManager() {
+  const modal = document.getElementById('deleteTxModal');
+  if (!modal) return;
+  const search = document.getElementById('deleteTxSearch');
+  const type = document.getElementById('deleteTxType');
+  if (search) search.value = '';
+  if (type) type.value = 'all';
+  renderDeleteManager();
+  modal.classList.add('show');
+}
+
+function closeDeleteManager() {
+  const modal = document.getElementById('deleteTxModal');
+  if (modal) modal.classList.remove('show');
+}
+
+function renderDeleteManager() {
+  const list = document.getElementById('deleteTxList');
+  if (!list) return;
+  const q = (document.getElementById('deleteTxSearch')?.value || '').toLowerCase().trim();
+  const type = document.getElementById('deleteTxType')?.value || 'all';
+
+  const rows = [...state.transactions]
+    .sort((a,b) => b.date.localeCompare(a.date) || String(b.id).localeCompare(String(a.id)))
+    .filter(t => {
+      const hay = `${t.note || ''} ${t.category || ''}`.toLowerCase();
+      return (!q || hay.includes(q)) && (type === 'all' || t.type === type);
+    });
+
+  if (!rows.length) {
+    list.innerHTML = '<div class="empty">transaksi tidak ditemukan.</div>';
+    return;
+  }
+
+  list.innerHTML = rows.map(t => `
+    <div class="tx" style="gap:8px">
+      <div class="tx-left" style="min-width:0">
+        <div class="mark ${t.type === 'income' ? 'in' : 'out'}">${t.type === 'income' ? '+' : '−'}</div>
+        <div class="tx-info">
+          <div class="tx-name">${esc(t.note)}</div>
+          <div class="tx-meta">${cap(t.category)} · ${dateID(t.date)}</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <div class="tx-amount ${t.type === 'income' ? 'green' : 'red'}">${t.type === 'income' ? '+' : '−'}${money(t.amount)}</div>
+        <button class="btn danger" type="button" onclick="removeTx('${String(t.id).replace(/'/g, "\\'")}');" data-delete-tx="${esc(t.id)}">Hapus</button>
+      </div>
+    </div>
+  `).join('');
+}
+
 // Data Manipulations
 async function removeTx(id) {
-  if (!confirm('Apakah Anda yakin ingin menghapus transaksi ini?')) return;
+  const tx = state.transactions.find(t => String(t.id) === String(id));
+  if (!tx) {
+    toast('Transaksi tidak ditemukan');
+    return;
+  }
+
+  if (!FB.ready || !FB.uid) {
+    toast('Firebase belum terhubung / belum login');
+    return;
+  }
+
+  if (!confirm(`Hapus transaksi "${tx.note}" sebesar ${money(tx.amount)}?`)) return;
+
+  // kunci tombol sementara agar tidak terjadi double click
+  const buttons = [...document.querySelectorAll('[data-delete-tx]')];
+  buttons.forEach(b => { if (String(b.dataset.deleteTx) === String(id)) b.disabled = true; });
+
   try {
-    await firebaseDeleteTransaction(id);
+    // hapus langsung pada path Firebase user yang sedang login
+    const ref = db.collection('users')
+      .doc(String(FB.uid))
+      .collection('transactions')
+      .doc(String(id));
+
+    try {
+      await ref.delete();
+    } catch (deleteErr) {
+      // fallback: beberapa Firestore Rules mengizinkan update tetapi menolak delete.
+      // Tandai sebagai terhapus agar transaksi langsung hilang dan tidak muncul lagi
+      // saat realtime sync berjalan. Struktur Firebase/auth tetap sama.
+      if (deleteErr && deleteErr.code === 'permission-denied') {
+        await ref.set({ _deleted: true, deletedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true });
+      } else {
+        throw deleteErr;
+      }
+    }
+
+    // listener realtime akan memperbarui state, tetapi kita update lokal juga
     state.transactions = state.transactions.filter(t => String(t.id) !== String(id));
     save();
-    toast('Transaksi berhasil dihapus');
+    renderDeleteManager();
     refreshActivePage();
+    toast('transaksi berhasil dihapus');
   } catch (e) {
-    console.error(e);
-    toast('Gagal menghapus transaksi dari Firebase');
+    console.error('hapus transaksi:', e);
+    const code = e && e.code ? e.code : 'unknown-error';
+    if (code === 'permission-denied') {
+      toast('Firebase menolak penghapusan transaksi (permission-denied)');
+    } else if (code === 'failed-precondition') {
+      toast('Firebase belum siap, coba lagi');
+    } else {
+      toast('gagal menghapus transaksi: ' + code);
+    }
+  } finally {
+    buttons.forEach(b => { if (String(b.dataset.deleteTx) === String(id)) b.disabled = false; });
   }
 }
 
@@ -850,7 +1012,7 @@ function renderTransactions() {
     body.innerHTML = '<tr><td colspan="6"><div class="empty">data tidak ditemukan.</div></td></tr>';
     return;
   }
-  body.innerHTML = a.map(t => `<tr><td>${dateID(t.date)}</td><td class="${t.type === 'income' ? 'green' : 'red'}" style="font-weight:800">${t.type === 'income' ? 'Pemasukan' : 'Pengeluaran'}</td><td>${cap(t.category)}</td><td>${esc(t.note)}</td><td class="${t.type === 'income' ? 'green' : 'red'}" style="font-weight:800">${t.type === 'income' ? '+' : '−'}${money(t.amount)}</td><td><button class="btn danger" onclick="removeTx(${t.id})">Hapus</button></td></tr>`).join('');
+  body.innerHTML = a.map(t => `<tr><td>${dateID(t.date)}</td><td class="${t.type === 'income' ? 'green' : 'red'}" style="font-weight:800">${t.type === 'income' ? 'Pemasukan' : 'Pengeluaran'}</td><td>${cap(t.category)}</td><td>${esc(t.note)}</td><td class="${t.type === 'income' ? 'green' : 'red'}" style="font-weight:800">${t.type === 'income' ? '+' : '−'}${money(t.amount)}</td><td><button class="btn danger" onclick="removeTx('${String(t.id).replace(/'/g, "\\'")}')" data-delete-tx="${esc(t.id)}">Hapus</button></td></tr>`).join('');
 }
 
 function renderGoals() {
@@ -1023,6 +1185,7 @@ document.getElementById('goalForm').addEventListener('submit', async function (e
 window.addEventListener('click', function (e) {
   if (e.target === document.getElementById('txModal')) closeTx();
   if (e.target === document.getElementById('goalModal')) closeGoal();
+  if (e.target === document.getElementById('deleteTxModal')) closeDeleteManager();
 });
 
 window.addEventListener('DOMContentLoaded', () => {
