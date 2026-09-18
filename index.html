@@ -1002,7 +1002,7 @@ function renderTransactions() {
     body.innerHTML = '<tr><td colspan="6"><div class="empty">data tidak ditemukan.</div></td></tr>';
     return;
   }
-  body.innerHTML = a.map(t => `<tr><td>${dateID(t.date)}</td><td class="${t.type === 'income' ? 'green' : 'red'}" style="font-weight:800">${t.type === 'income' ? 'Pemasukan' : 'Pengeluaran'}</td><td>${cap(t.category)}</td><td>${esc(t.note)}</td><td class="${t.type === 'income' ? 'green' : 'red'}" style="font-weight:800">${t.type === 'income' ? '+' : '−'}${money(t.amount)}</td><td><button class="btn danger" onclick="removeTx(${t.id})">Hapus</button></td></tr>`).join('');
+  body.innerHTML = a.map(t => `<tr><td>${dateID(t.date)}</td><td class="${t.type === 'income' ? 'green' : 'red'}" style="font-weight:800">${t.type === 'income' ? 'Pemasukan' : 'Pengeluaran'}</td><td>${cap(t.category)}</td><td>${esc(t.note)}</td><td class="${t.type === 'income' ? 'green' : 'red'}" style="font-weight:800">${t.type === 'income' ? '+' : '−'}${money(t.amount)}</td><td><button class="btn danger" type="button" onclick="removeTx(${JSON.stringify(String(t.id))})">Hapus</button></td></tr>`).join('');
 }
 
 function renderGoals() {
