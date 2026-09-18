@@ -711,28 +711,24 @@ function closeGoal() {
 
 // Data Manipulations
 async function removeTx(id) {
-  if (!FB.ready) {
-    toast('Firebase belum terhubung');
-    return;
-  }
-  const tx = state.transactions.find(t => String(t.id) === String(id));
-  if (!tx) {
-    toast('Transaksi tidak ditemukan');
-    return;
-  }
+  const txId = String(id);
+  if (!FB.ready || !FB.uid) { toast('Firebase belum terhubung'); return; }
+  const tx = state.transactions.find(t => String(t.id) === txId);
+  if (!tx) { toast('Transaksi tidak ditemukan'); return; }
   if (!confirm(`Hapus transaksi "${tx.note || '-'}" sebesar ${money(tx.amount)}?`)) return;
   try {
-    await FB.transactionsRef().doc(String(id)).delete();
-    state.transactions = state.transactions.filter(t => String(t.id) !== String(id));
+    const ref = db.collection('users').doc(String(FB.uid)).collection('transactions').doc(txId);
+    await ref.delete();
+    state.transactions = state.transactions.filter(t => String(t.id) !== txId);
     save();
     toast('Transaksi berhasil dihapus');
-    if (typeof renderDeleteManager === 'function') renderDeleteManager();
     refreshActivePage();
   } catch (e) {
     console.error('Hapus transaksi:', e);
-    if (e?.code === 'permission-denied') toast('Firebase menolak penghapusan. cek Firestore Rules');
-    else if (e?.code === 'not-found') toast('Transaksi sudah tidak ada di Firebase');
-    else toast('Gagal menghapus transaksi dari Firebase');
+    const msg = e && e.code ? e.code : '';
+    if (msg === 'permission-denied') toast('hapus ditolak Firebase — cek Firestore Rules');
+    else if (msg === 'not-found') { state.transactions = state.transactions.filter(t => String(t.id) !== txId); save(); refreshActivePage(); toast('transaksi sudah terhapus'); }
+    else toast('gagal menghapus transaksi: ' + (e.message || 'error'));
   }
 }
 
