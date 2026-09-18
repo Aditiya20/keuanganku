@@ -79,6 +79,52 @@ button,input,select{font:inherit}button{cursor:pointer}button:disabled{opacity:.
 }
 @media(max-width:480px){.stats{grid-template-columns:1fr 1fr}.stat strong{font-size:16px}.report-grid{grid-template-columns:1fr}.card-head{align-items:flex-start}.hero{border-radius:18px}.balance{font-size:26px}.filters{grid-template-columns:1fr}}
 @media print{.sidebar,.mobile-head,.bottom-nav,.topbar .actions,.mobile-add-btn,.goal-add-mobile,.modal,.toast{display:none!important}.main{margin:0;padding:20px!important}.page{display:none!important}.page.active{display:block!important}.card,.stat,.report-card{box-shadow:none}.hero{print-color-adjust:exact;-webkit-print-color-adjust:exact}}
+
+/* ===== saweria-inspired ultra ui ===== */
+.kpi-strip{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:16px}
+.kpi{background:var(--card);border:2px solid var(--line);border-radius:16px;padding:15px;box-shadow:var(--shadowSm);position:relative;overflow:hidden}
+.kpi:after{content:"";position:absolute;width:58px;height:58px;border:2px dashed var(--line);border-radius:50%;right:-20px;bottom:-25px;opacity:.12}
+.kpi-label{font-size:9px;font-weight:900;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+.kpi-value{font-size:18px;font-weight:900;margin-top:7px;display:block;word-break:break-word}
+.kpi-note{font-size:9px;color:var(--muted);margin-top:5px;display:block}
+.progress-wrap{margin-top:8px}
+.mini-progress{height:8px;background:#edf1ed;border:1px solid var(--line);border-radius:99px;overflow:hidden}
+.mini-progress span{display:block;height:100%;border-radius:99px;background:var(--green)}
+.insight-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:16px;margin-bottom:16px}
+.insight{background:var(--yellowSoft);border:2px solid var(--line);border-radius:16px;padding:16px;box-shadow:var(--shadowSm)}
+.insight-title{font-size:12px;font-weight:900;margin-bottom:8px}
+.insight-text{font-size:11px;line-height:1.7}
+.pill-row{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}
+.pill{display:inline-flex;align-items:center;gap:5px;padding:7px 9px;border:2px solid var(--line);border-radius:999px;background:var(--card);font-size:9px;font-weight:900}
+.pill.green-pill{background:var(--greenSoft);color:var(--green)}
+.pill.red-pill{background:var(--redSoft);color:var(--red)}
+.chart-duo{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.chart-card{background:var(--card);border:2px solid var(--line);border-radius:18px;padding:18px;box-shadow:var(--shadowSm)}
+.chart-small{height:230px;position:relative}
+.section-label{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin-bottom:8px}
+.quick-actions{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
+.quick-btn{border:2px solid var(--line);background:var(--card);color:var(--text);border-radius:14px;padding:13px;text-align:left;box-shadow:var(--shadowSm);font-size:10px;font-weight:900}
+.quick-btn:hover{transform:translate(-1px,-1px);background:var(--yellow)}
+.quick-btn small{display:block;color:var(--muted);font-weight:700;margin-top:4px}
+.month-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px;padding:12px 14px;background:var(--card);border:2px solid var(--line);border-radius:14px;box-shadow:var(--shadowSm)}
+.month-bar strong{font-size:12px}.month-bar span{font-size:10px;color:var(--muted)}
+.table-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+.table-summary .stat{padding:14px}
+.table-summary .stat strong{font-size:17px}
+.category-list{display:grid;gap:9px}
+.category-row{display:grid;grid-template-columns:100px 1fr 85px;align-items:center;gap:9px;font-size:10px}
+.category-row b{font-size:10px}
+.category-bar{height:9px;border:1px solid var(--line);border-radius:99px;overflow:hidden;background:#edf1ed}
+.category-bar span{display:block;height:100%;background:var(--yellow)}
+.health{display:grid;gap:9px}
+.health-row{display:flex;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px dashed #ccd8d0;font-size:10px}
+.health-row:last-child{border-bottom:0}
+.health-row b{font-size:11px}
+.dark .mini-progress,.dark .category-bar{background:#29332d}
+@media(max-width:1150px){.kpi-strip{grid-template-columns:repeat(3,1fr)}.insight-grid,.chart-duo{grid-template-columns:1fr}.quick-actions{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:800px){.kpi-strip{grid-template-columns:1fr 1fr}.kpi{padding:13px}.kpi-value{font-size:16px}.insight-grid,.chart-duo{gap:12px}.quick-actions{grid-template-columns:1fr 1fr}.table-summary{grid-template-columns:1fr 1fr}.month-bar{align-items:flex-start;flex-direction:column}.category-row{grid-template-columns:85px 1fr 72px}.chart-small{height:220px}}
+@media(max-width:480px){.kpi-strip{grid-template-columns:1fr 1fr}.kpi-value{font-size:14px}.quick-actions{gap:8px}.quick-btn{padding:11px 9px}.table-summary{gap:8px}.table-summary .stat strong{font-size:15px}}
+
 </style>
 </head>
 <body>
@@ -97,24 +143,73 @@ button,input,select{font:inherit}button{cursor:pointer}button:disabled{opacity:.
   <header class="mobile-head"><div><div class="mobile-brand">Adit<span>Finance</span></div><small id="firebaseStatus" style="font-size:9px;color:var(--muted)">menghubungkan ke Firebase...</small></div><button class="mobile-theme" id="mobileTheme">Mode</button></header>
 
   <section class="page active" id="page-dashboard">
-    <div class="topbar"><div><h1 class="title">Dashboard</h1><p class="desc">pantau kondisi keuangan dan progress targetmu</p></div><div class="actions"><button class="btn secondary" onclick="openDeleteManager()">Hapus Transaksi</button><button class="btn primary" onclick="openTx()">+ Tambah Transaksi</button></div></div>
-    <div class="hero"><div><div class="hero-label">Saldo Saat Ini</div><div class="balance" id="balance">Rp0</div><div class="hero-note">saldo dihitung otomatis dari seluruh transaksi</div></div><div class="quote"><small>pengingat hari ini</small><span id="quote"></span></div></div>
-    <div class="stats">
-      <div class="stat"><label>Pemasukan Bulan Ini</label><strong class="green" id="mIncome">Rp0</strong><small>total pemasukan</small></div>
-      <div class="stat"><label>Pengeluaran Bulan Ini</label><strong class="red" id="mExpense">Rp0</strong><small>total pengeluaran</small></div>
-      <div class="stat"><label>Ditabung Bulan Ini</label><strong class="green" id="mSaving">Rp0</strong><small>kategori tabungan</small></div>
-      <div class="stat"><label>Saving Rate</label><strong class="green" id="savingRate">0%</strong><small>dari pemasukan bulan ini</small></div>
+    <div class="topbar">
+      <div><h1 class="title">Dashboard</h1><p class="desc"></p></div>
+      <div class="actions"><button class="btn secondary" onclick="navigate('reports')">Lihat Analisis</button><button class="btn primary" onclick="openTx()">+ Tambah Transaksi</button></div>
     </div>
+
+    <div class="hero">
+      <div><div class="hero-label">Saldo Saat Ini</div><div class="balance" id="balance">Rp0</div><div class="hero-note">saldo = seluruh uang masuk dikurangi seluruh uang keluar</div></div>
+      <div class="quote"><small>pengingat hari ini</small><span id="quote"></span></div>
+    </div>
+
+    <div class="kpi-strip">
+      <div class="kpi"><span class="kpi-label">uang masuk bulan ini</span><span class="kpi-value green" id="mIncome">Rp0</span><span class="kpi-note" id="mIncomePct">0% dari arus uang</span></div>
+      <div class="kpi"><span class="kpi-label">uang keluar bulan ini</span><span class="kpi-value red" id="mExpense">Rp0</span><span class="kpi-note" id="mExpensePct">0% dari arus uang</span></div>
+      <div class="kpi"><span class="kpi-label">arus bersih bulan ini</span><span class="kpi-value" id="mNet">Rp0</span><span class="kpi-note">masuk − keluar</span></div>
+      <div class="kpi"><span class="kpi-label">pengeluaran / pemasukan</span><span class="kpi-value" id="expenseRatio">0%</span><span class="kpi-note">rasio pemakaian income</span></div>
+      <div class="kpi"><span class="kpi-label">jumlah transaksi</span><span class="kpi-value" id="mTxCount">0</span><span class="kpi-note">bulan berjalan</span></div>
+    </div>
+
+    <div class="insight-grid">
+      <div class="insight">
+        <div class="insight-title">ringkasan bulan ini</div>
+        <div class="insight-text" id="monthlyInsight">belum ada data transaksi bulan ini.</div>
+        <div class="pill-row"><span class="pill green-pill" id="incomeSharePill">uang masuk 0%</span><span class="pill red-pill" id="expenseSharePill">uang keluar 0%</span></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><div><div class="card-title">kesehatan keuangan</div><div class="card-sub">indikator otomatis dari data transaksi</div></div></div>
+        <div class="health" id="healthPanel"></div>
+      </div>
+    </div>
+
+    <div class="quick-actions">
+      <button class="quick-btn" onclick="openTx('income')">+ pemasukan<small>catat uang masuk</small></button>
+      <button class="quick-btn" onclick="openTx('expense')">− pengeluaran<small>catat uang keluar</small></button>
+      <button class="quick-btn" onclick="navigate('goals')">target keuangan<small>atur progres tujuan</small></button>
+      <button class="quick-btn" onclick="navigate('transactions')">riwayat transaksi<small>cari & kelola data</small></button>
+    </div>
+
+    <div class="chart-duo">
+      <div class="chart-card"><div class="card-head"><div><div class="card-title">uang masuk vs uang keluar</div><div class="card-sub">persentase komposisi bulan berjalan</div></div></div><div class="chart-small"><canvas id="moneyShareChart"></canvas></div></div>
+      <div class="chart-card"><div class="card-head"><div><div class="card-title">cashflow 6 bulan</div><div class="card-sub">pergerakan pemasukan dan pengeluaran</div></div></div><div class="chart-small"><canvas id="cashflowChart"></canvas></div></div>
+    </div>
+
     <div class="grid2">
-      <div class="card"><div class="card-head"><div><div class="card-title">Cashflow</div><div class="card-sub">pemasukan dan pengeluaran 6 bulan terakhir</div></div></div><div class="chart"><canvas id="cashflowChart"></canvas></div></div>
-      <div class="card"><div class="card-head"><div><div class="card-title">Target Keuangan</div><div class="card-sub">fokus utama kamu</div></div><button class="btn secondary" onclick="navigate('goals')">Lihat Semua</button></div><div class="goals" id="dashGoals"></div></div>
+      <div class="card"><div class="card-head"><div><div class="card-title">pengeluaran per kategori</div><div class="card-sub">lihat uang paling banyak keluar ke mana</div></div></div><div id="categoryBreakdown" class="category-list"></div></div>
+      <div class="card"><div class="card-head"><div><div class="card-title">target keuangan</div><div class="card-sub">uang yang sedang kamu kumpulkan</div></div><button class="btn secondary" onclick="navigate('goals')">kelola</button></div><div class="goals" id="dashGoals"></div></div>
     </div>
-    <div class="card"><div class="card-head"><div><div class="card-title">Transaksi Terbaru</div><div class="card-sub">aktivitas keuangan terakhir</div></div><button class="btn secondary" onclick="navigate('transactions')">Semua Transaksi</button></div><div class="transactions" id="recent"></div></div>
+
+    <div class="card"><div class="card-head"><div><div class="card-title">transaksi terbaru</div><div class="card-sub">7 aktivitas terakhir</div></div><button class="btn secondary" onclick="navigate('transactions')">semua transaksi</button></div><div class="transactions" id="recent"></div></div>
   </section>
 
   <section class="page" id="page-transactions">
-    <div class="topbar"><div><h1 class="title">Transaksi</h1><p class="desc">tambah, cari, filter, dan hapus transaksi</p></div><div class="actions"><button class="btn primary" onclick="openTx()">+ Tambah Transaksi</button></div></div>
-    <button class="btn primary mobile-add-btn" onclick="openTx()">+ Tambah Transaksi</button><button class="btn danger mobile-delete-btn" onclick="openDeleteManager()">Kelola Hapus Transaksi</button><div class="card"><div class="filters"><input class="input" id="search" placeholder="cari keterangan atau kategori..." oninput="renderTransactions()"><select class="select" id="typeFilter" onchange="renderTransactions()"><option value="all">Semua Jenis</option><option value="income">Pemasukan</option><option value="expense">Pengeluaran</option></select><select class="select" id="catFilter" onchange="renderTransactions()"><option value="all">Semua Kategori</option></select></div><div class="table-wrap"><table><thead><tr><th>Tanggal</th><th>Jenis</th><th>Kategori</th><th>Keterangan</th><th>Nominal</th><th>Aksi</th></tr></thead><tbody id="txTable"></tbody></table></div></div>
+    <div class="topbar"><div><h1 class="title">Transaksi</h1><p class="desc">catat, cari, edit, dan hapus semua pergerakan uang</p></div><div class="actions"><button class="btn primary" onclick="openTx()">+ Tambah Transaksi</button></div></div>
+    <button class="btn primary mobile-add-btn" onclick="openTx()">+ Tambah Transaksi</button>
+    <div class="table-summary">
+      <div class="stat"><label>Total Masuk</label><strong class="green" id="txTotalIn">Rp0</strong></div>
+      <div class="stat"><label>Total Keluar</label><strong class="red" id="txTotalOut">Rp0</strong></div>
+      <div class="stat"><label>Netto</label><strong id="txNet">Rp0</strong></div>
+      <div class="stat"><label>Transaksi</label><strong id="txCount">0</strong></div>
+    </div>
+    <div class="card">
+      <div class="filters">
+        <input class="input" id="search" placeholder="cari keterangan atau kategori..." oninput="renderTransactions()">
+        <select class="select" id="typeFilter" onchange="renderTransactions()"><option value="all">Semua Jenis</option><option value="income">Pemasukan</option><option value="expense">Pengeluaran</option></select>
+        <select class="select" id="catFilter" onchange="renderTransactions()"><option value="all">Semua Kategori</option></select>
+      </div>
+      <div class="table-wrap"><table><thead><tr><th>Tanggal</th><th>Jenis</th><th>Kategori</th><th>Keterangan</th><th>Nominal</th><th>Aksi</th></tr></thead><tbody id="txTable"></tbody></table></div>
+    </div>
   </section>
 
   <section class="page" id="page-goals">
@@ -123,11 +218,33 @@ button,input,select{font:inherit}button{cursor:pointer}button:disabled{opacity:.
   </section>
 
   <section class="page" id="page-reports">
-    <div class="topbar"><div><h1 class="title">Laporan</h1><p class="desc">lihat gambaran kondisi keuanganmu</p></div><div class="actions"><button class="btn primary" onclick="downloadPDF()">Unduh PDF</button></div></div>
+    <div class="topbar"><div><h1 class="title">Analisis</h1><p class="desc">baca pola uang masuk, uang keluar, dan progres target</p></div><div class="actions"><button class="btn primary" onclick="downloadPDF()">Unduh PDF</button></div></div>
     <button class="btn primary mobile-pdf-btn" onclick="downloadPDF()">Unduh PDF Laporan</button>
-    <div class="report-grid"><div class="report-card"><div class="report-label">Total Pemasukan</div><span class="report-value green" id="rIncome">Rp0</span></div><div class="report-card"><div class="report-label">Total Pengeluaran</div><span class="report-value red" id="rExpense">Rp0</span></div><div class="report-card"><div class="report-label">Saldo Bersih</div><span class="report-value" id="rNet">Rp0</span></div></div>
-    <div class="grid2"><div class="card"><div class="card-head"><div><div class="card-title">Komposisi Pengeluaran</div><div class="card-sub">berdasarkan kategori</div></div></div><div class="chart"><canvas id="expenseChart"></canvas></div></div><div class="card"><div class="card-head"><div><div class="card-title">Ringkasan</div><div class="card-sub">evaluasi keuangan</div></div></div><div id="summary"></div></div></div>
-    <div class="card data-tools"><div class="card-head"><div><div class="card-title">Kelola Data</div><div class="card-sub">hapus data yang sudah tidak diperlukan</div></div></div><div class="data-actions"><button class="btn danger" onclick="clearTransactions()">Hapus Semua Transaksi</button><button class="btn danger" onclick="clearGoals()">Hapus Semua Target</button><button class="btn danger" onclick="resetAllData()">Reset Semua Data</button></div></div>
+
+    <div class="report-grid">
+      <div class="report-card"><div class="report-label">Total Pemasukan</div><span class="report-value green" id="rIncome">Rp0</span></div>
+      <div class="report-card"><div class="report-label">Total Pengeluaran</div><span class="report-value red" id="rExpense">Rp0</span></div>
+      <div class="report-card"><div class="report-label">Saldo Bersih</div><span class="report-value" id="rNet">Rp0</span></div>
+    </div>
+    <div class="kpi-strip">
+      <div class="kpi"><span class="kpi-label">persentase uang masuk</span><span class="kpi-value green" id="rIncomePct">0%</span><span class="kpi-note">dari total arus uang</span></div>
+      <div class="kpi"><span class="kpi-label">persentase uang keluar</span><span class="kpi-value red" id="rExpensePct">0%</span><span class="kpi-note">dari total arus uang</span></div>
+      <div class="kpi"><span class="kpi-label">expense ratio</span><span class="kpi-value" id="rExpenseRatio">0%</span><span class="kpi-note">keluar dibanding masuk</span></div>
+      <div class="kpi"><span class="kpi-label">jumlah transaksi</span><span class="kpi-value" id="rTxCount">0</span><span class="kpi-note">semua periode</span></div>
+      <div class="kpi"><span class="kpi-label">kategori terbesar</span><span class="kpi-value" id="rTopCategory">-</span><span class="kpi-note">pengeluaran tertinggi</span></div>
+    </div>
+
+    <div class="chart-duo">
+      <div class="chart-card"><div class="card-head"><div><div class="card-title">komposisi uang</div><div class="card-sub">persentase pemasukan vs pengeluaran</div></div></div><div class="chart-small"><canvas id="reportShareChart"></canvas></div></div>
+      <div class="chart-card"><div class="card-head"><div><div class="card-title">komposisi pengeluaran</div><div class="card-sub">berdasarkan kategori</div></div></div><div class="chart-small"><canvas id="expenseChart"></canvas></div></div>
+    </div>
+
+    <div class="grid2">
+      <div class="card"><div class="card-head"><div><div class="card-title">detail kategori pengeluaran</div><div class="card-sub">urut berdasarkan nominal terbesar</div></div></div><div id="reportCategoryBreakdown" class="category-list"></div></div>
+      <div class="card"><div class="card-head"><div><div class="card-title">ringkasan otomatis</div><div class="card-sub">insight dari data yang tersimpan</div></div></div><div id="summary"></div></div>
+    </div>
+
+    <div class="card data-tools"><div class="card-head"><div><div class="card-title">kelola data</div><div class="card-sub">gunakan dengan hati-hati karena memengaruhi data Firebase</div></div></div><div class="data-actions"><button class="btn danger" onclick="openDeleteManager()">Kelola Hapus Transaksi</button><button class="btn danger" onclick="clearTransactions()">Hapus Semua Transaksi</button><button class="btn danger" onclick="clearGoals()">Hapus Semua Target</button><button class="btn danger" onclick="resetAllData()">Reset Semua Data</button></div></div>
   </section>
 </main>
 </div>
@@ -154,6 +271,17 @@ button,input,select{font:inherit}button{cursor:pointer}button:disabled{opacity:.
     <div id="deleteTxList"></div>
   </div>
 </div>
+
+<div class="modal" id="editTxModal"><div class="modal-box"><div class="modal-head"><div class="modal-title">Edit Transaksi</div><button class="close" onclick="closeEditTx()">×</button></div><form id="editTxForm">
+  <input type="hidden" id="editTxId">
+  <div class="field"><label>Jenis Transaksi</label><select class="select" id="editTxType" required><option value="income">Pemasukan</option><option value="expense">Pengeluaran</option></select></div>
+  <div class="field"><label>Nominal</label><input class="input" id="editTxAmount" type="number" min="1" step="1" inputmode="numeric" required></div>
+  <div class="field"><label>Kategori</label><select class="select" id="editTxCategory" required></select></div>
+  <div class="field"><label>Tanggal</label><input class="input" id="editTxDate" type="date" required></div>
+  <div class="field"><label>Keterangan</label><input class="input" id="editTxNote" maxlength="80" required></div>
+  <div class="form-actions"><button type="button" class="btn secondary" onclick="closeEditTx()">Batal</button><button type="submit" class="btn primary">Simpan Perubahan</button></div>
+</form></div></div>
+
 <div class="modal" id="goalModal"><div class="modal-box"><div class="modal-head"><div class="modal-title">Tambah Target</div><button class="close" onclick="closeGoal()">×</button></div><form id="goalForm">
   <div class="field"><label>Nama Target</label><input class="input" id="goalName" maxlength="50" placeholder="contoh: Dana Rumah" required></div>
   <div class="field"><label>Target Dana</label><input class="input" id="goalTarget" type="number" min="1" step="1" placeholder="contoh: 100000000" required></div>
@@ -271,17 +399,19 @@ function startRealtimeSync() {
 
   stopRealtimeTx = FB.transactionsRef().onSnapshot(
     snap => {
-      state.transactions = snap.docs.map(d => {
-        const x = d.data();
-        return {
-          id: String(d.id),
-          type: x.type || 'expense',
-          amount: Number(x.amount) || 0,
-          category: x.category || 'lainnya',
-          date: x.date || '',
-          note: x.note || '-'
-        };
-      });
+      state.transactions = snap.docs
+        .filter(d => !d.data()._deleted)
+        .map(d => {
+          const x = d.data();
+          return {
+            id: String(d.id),
+            type: x.type || 'expense',
+            amount: Number(x.amount) || 0,
+            category: x.category || 'lainnya',
+            date: x.date || '',
+            note: x.note || '-'
+          };
+        });
       save();
       refreshActivePage();
       if (!firstRealtimeLoad) toast('data transaksi diperbarui');
@@ -512,7 +642,7 @@ const seed = {
   dark: false
 };
 
-let state = load(), cashChart = null, expChart = null;
+let state = load(), cashChart = null, expChart = null, moneyShareChart = null, reportShareChart = null;
 
 function load() {
   try {
@@ -620,13 +750,14 @@ function refreshActivePage() {
 }
 
 // Modal functions
-function openTx() {
+function openTx(presetType) {
   const modal = document.getElementById('txModal');
   document.getElementById('txForm').reset();
   const dateInput = document.getElementById('txDate');
   if (dateInput) {
     dateInput.value = new Date().toISOString().split('T')[0];
   }
+  if (presetType === 'income' || presetType === 'expense') document.getElementById('txType').value = presetType;
   modal.classList.add('show');
 }
 
@@ -697,62 +828,51 @@ function renderDeleteManager() {
 }
 
 // Data Manipulations
-async function removeTx(id) {
+
+function openEditTx(id) {
   const tx = state.transactions.find(t => String(t.id) === String(id));
-  if (!tx) {
-    toast('Transaksi tidak ditemukan');
-    return;
-  }
+  if (!tx) return;
+  document.getElementById('editTxId').value = tx.id;
+  document.getElementById('editTxType').value = tx.type;
+  document.getElementById('editTxAmount').value = tx.amount;
+  document.getElementById('editTxCategory').innerHTML = CATS.map(c => `<option value="${c}">${cap(c)}</option>`).join('');
+  document.getElementById('editTxCategory').value = CATS.includes(tx.category) ? tx.category : 'lainnya';
+  document.getElementById('editTxDate').value = tx.date;
+  document.getElementById('editTxNote').value = tx.note || '';
+  document.getElementById('editTxModal').classList.add('show');
+}
+function closeEditTx(){ document.getElementById('editTxModal').classList.remove('show'); }
 
-  if (!FB.ready || !FB.uid) {
-    toast('Firebase belum terhubung / belum login');
-    return;
-  }
+async function updateTransaction(tx) {
+  if (!FB.ready) throw new Error('Firebase belum siap.');
+  await FB.transactionsRef().doc(String(tx.id)).set({
+    type: tx.type, amount:Number(tx.amount), category:tx.category, date:tx.date, note:tx.note
+  }, {merge:true});
+}
 
-  if (!confirm(`Hapus transaksi "${tx.note}" sebesar ${money(tx.amount)}?`)) return;
-
-  // kunci tombol sementara agar tidak terjadi double click
-  const buttons = [...document.querySelectorAll('[data-delete-tx]')];
-  buttons.forEach(b => { if (String(b.dataset.deleteTx) === String(id)) b.disabled = true; });
-
+async function removeTx(id) {
+  if (!FB.ready) { toast('Firebase belum siap atau belum login'); return; }
+  const tx = state.transactions.find(t => String(t.id) === String(id));
+  if (!tx) return;
+  if (!confirm(`hapus transaksi "${tx.note}" sebesar ${money(tx.amount)}?`)) return;
   try {
-    // hapus langsung pada path Firebase user yang sedang login
-    const ref = db.collection('users')
-      .doc(String(FB.uid))
-      .collection('transactions')
-      .doc(String(id));
-
-    try {
-      await ref.delete();
-    } catch (deleteErr) {
-      // fallback: beberapa Firestore Rules mengizinkan update tetapi menolak delete.
-      // Tandai sebagai terhapus agar transaksi langsung hilang dan tidak muncul lagi
-      // saat realtime sync berjalan. Struktur Firebase/auth tetap sama.
-      if (deleteErr && deleteErr.code === 'permission-denied') {
-        await ref.set({ _deleted: true, deletedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true });
-      } else {
-        throw deleteErr;
-      }
-    }
-
-    // listener realtime akan memperbarui state, tetapi kita update lokal juga
+    await FB.transactionsRef().doc(String(id)).delete();
     state.transactions = state.transactions.filter(t => String(t.id) !== String(id));
     save();
-    renderDeleteManager();
-    refreshActivePage();
     toast('transaksi berhasil dihapus');
+    refreshActivePage();
   } catch (e) {
     console.error('hapus transaksi:', e);
-    const code = e && e.code ? e.code : 'unknown-error';
-    if (code === 'permission-denied') {
-      toast('Firebase menolak penghapusan transaksi (permission-denied)');
-    } else if (code === 'failed-precondition') {
-      toast('Firebase belum siap, coba lagi');
-    } else {
-      toast('gagal menghapus transaksi: ' + code);
+    try {
+      await FB.transactionsRef().doc(String(id)).set({_deleted:true, deletedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
+      state.transactions = state.transactions.filter(t => String(t.id) !== String(id));
+      save();
+      toast('transaksi disembunyikan dari aplikasi');
+      refreshActivePage();
+    } catch (e2) {
+      console.error('fallback hapus:', e2);
+      toast('gagal menghapus: ' + (e2.code || e.code || 'cek Firebase Rules'));
     }
-  } finally {
-    buttons.forEach(b => { if (String(b.dataset.deleteTx) === String(id)) b.disabled = false; });
   }
 }
 
@@ -960,15 +1080,40 @@ function downloadPDF() {
 
 // Render Functions
 function renderDashboard() {
+  const inc = monthly('income');
+  const out = monthly('expense');
+  const flow = inc + out;
+  const net = inc - out;
+  const incPct = flow ? (inc / flow) * 100 : 0;
+  const outPct = flow ? (out / flow) * 100 : 0;
+  const ratio = inc ? (out / inc) * 100 : 0;
+  const m = monthKey();
+  const txCount = state.transactions.filter(t => t.date && t.date.startsWith(m)).length;
+
   document.getElementById('balance').textContent = money(total('income') - total('expense'));
-  document.getElementById('mIncome').textContent = money(monthly('income'));
-  document.getElementById('mExpense').textContent = money(monthly('expense'));
-  document.getElementById('mSaving').textContent = money(saving());
-  document.getElementById('savingRate').textContent = (monthly('income') ? (saving() / monthly('income')) * 100 : 0).toFixed(1) + '%';
+  document.getElementById('mIncome').textContent = money(inc);
+  document.getElementById('mExpense').textContent = money(out);
+  document.getElementById('mNet').textContent = money(net);
+  document.getElementById('expenseRatio').textContent = ratio.toFixed(1) + '%';
+  document.getElementById('mTxCount').textContent = txCount;
+  document.getElementById('mIncomePct').textContent = incPct.toFixed(1) + '% dari arus uang';
+  document.getElementById('mExpensePct').textContent = outPct.toFixed(1) + '% dari arus uang';
+  document.getElementById('incomeSharePill').textContent = 'uang masuk ' + incPct.toFixed(1) + '%';
+  document.getElementById('expenseSharePill').textContent = 'uang keluar ' + outPct.toFixed(1) + '%';
   document.getElementById('quote').textContent = QUOTES[new Date().getDate() % QUOTES.length];
+
+  const insight = document.getElementById('monthlyInsight');
+  if (!txCount) insight.textContent = 'belum ada transaksi bulan ini. mulai dengan mencatat pemasukan dan pengeluaran supaya pola keuanganmu terlihat.';
+  else if (net > 0) insight.textContent = `bulan ini uang masuk ${money(inc)} dan uang keluar ${money(out)}. arus bersih masih positif ${money(net)}.`;
+  else if (net < 0) insight.textContent = `bulan ini uang keluar ${money(out)} lebih besar dari uang masuk ${money(inc)}. selisihnya ${money(Math.abs(net))}.`;
+  else insight.textContent = `bulan ini uang masuk dan keluar sama-sama ${money(inc)}.`;
+
+  renderHealth(inc, out);
   renderDashGoals();
   renderRecent();
   renderCashflow();
+  renderMoneyShareChart('moneyShareChart', inc, out, true);
+  renderCategoryBreakdown('categoryBreakdown', state.transactions.filter(t => t.type === 'expense'));
 }
 
 function renderDashGoals() {
@@ -1003,16 +1148,18 @@ function renderTransactions() {
   const type = document.getElementById('typeFilter').value;
   const cat = cf.value;
 
-  let a = [...state.transactions]
-    .sort((x, y) => y.date.localeCompare(x.date) || y.id - x.id)
-    .filter(t => (!q || t.note.toLowerCase().includes(q) || t.category.toLowerCase().includes(q)) && (type === 'all' || t.type === type) && (cat === 'all' || t.category === cat));
+  const all = [...state.transactions].sort((x,y)=>y.date.localeCompare(x.date)||String(y.id).localeCompare(String(x.id)));
+  document.getElementById('txTotalIn').textContent = money(total('income'));
+  document.getElementById('txTotalOut').textContent = money(total('expense'));
+  const net = total('income') - total('expense');
+  const netEl = document.getElementById('txNet');
+  netEl.textContent = money(net); netEl.className = net < 0 ? 'red' : 'green';
+  document.getElementById('txCount').textContent = all.length;
 
+  const a = all.filter(t => (!q || String(t.note||'').toLowerCase().includes(q) || String(t.category||'').toLowerCase().includes(q)) && (type === 'all' || t.type === type) && (cat === 'all' || t.category === cat));
   const body = document.getElementById('txTable');
-  if (!a.length) {
-    body.innerHTML = '<tr><td colspan="6"><div class="empty">data tidak ditemukan.</div></td></tr>';
-    return;
-  }
-  body.innerHTML = a.map(t => `<tr><td>${dateID(t.date)}</td><td class="${t.type === 'income' ? 'green' : 'red'}" style="font-weight:800">${t.type === 'income' ? 'Pemasukan' : 'Pengeluaran'}</td><td>${cap(t.category)}</td><td>${esc(t.note)}</td><td class="${t.type === 'income' ? 'green' : 'red'}" style="font-weight:800">${t.type === 'income' ? '+' : '−'}${money(t.amount)}</td><td><button class="btn danger" onclick="removeTx('${String(t.id).replace(/'/g, "\\'")}')" data-delete-tx="${esc(t.id)}">Hapus</button></td></tr>`).join('');
+  if (!a.length) { body.innerHTML = '<tr><td colspan="6"><div class="empty">data tidak ditemukan.</div></td></tr>'; return; }
+  body.innerHTML = a.map(t => `<tr><td>${dateID(t.date)}</td><td class="${t.type==='income'?'green':'red'}" style="font-weight:900">${t.type==='income'?'Pemasukan':'Pengeluaran'}</td><td>${cap(t.category)}</td><td>${esc(t.note)}</td><td class="${t.type==='income'?'green':'red'}" style="font-weight:900">${t.type==='income'?'+':'−'}${money(t.amount)}</td><td><div style="display:flex;gap:6px"><button class="btn secondary" onclick="openEditTx('${String(t.id).replace(/'/g,"\\'")}')">Edit</button><button class="btn danger" onclick="removeTx('${String(t.id).replace(/'/g,"\\'")}')">Hapus</button></div></td></tr>`).join('');
 }
 
 function renderGoals() {
@@ -1029,17 +1176,34 @@ function renderGoals() {
 }
 
 function renderReports() {
-  const inc = total('income');
-  const out = total('expense');
-  const net = inc - out;
-  const sav = state.transactions.filter(t => t.type === 'expense' && t.category === 'tabungan').reduce((a, t) => a + Number(t.amount), 0);
+  const inc = total('income'), out = total('expense'), net = inc - out, flow = inc + out;
+  const incPct = flow ? (inc/flow)*100 : 0, outPct = flow ? (out/flow)*100 : 0;
+  const ratio = inc ? (out/inc)*100 : 0;
+  const map = {};
+  state.transactions.filter(t=>t.type==='expense').forEach(t=>map[t.category]=(map[t.category]||0)+Number(t.amount||0));
+  const top = Object.entries(map).sort((a,b)=>b[1]-a[1])[0];
 
-  document.getElementById('rIncome').textContent = money(inc);
-  document.getElementById('rExpense').textContent = money(out);
-  document.getElementById('rNet').textContent = money(net);
-  document.getElementById('rNet').className = 'report-value ' + (net < 0 ? 'red' : 'green');
-  document.getElementById('summary').innerHTML = `<div style="padding:15px;border-radius:14px;background:var(--greenSoft);margin-bottom:10px"><div class="report-label">total tabungan</div><div class="report-value green">${money(sav)}</div></div><div style="padding:15px;border:1px solid var(--line);border-radius:14px"><div class="report-label">saving rate keseluruhan</div><div class="report-value">${inc ? ((sav / inc) * 100).toFixed(1) : '0.0'}%</div></div>`;
+  document.getElementById('rIncome').textContent=money(inc);
+  document.getElementById('rExpense').textContent=money(out);
+  document.getElementById('rNet').textContent=money(net);
+  document.getElementById('rNet').className='report-value '+(net<0?'red':'green');
+  document.getElementById('rIncomePct').textContent=incPct.toFixed(1)+'%';
+  document.getElementById('rExpensePct').textContent=outPct.toFixed(1)+'%';
+  document.getElementById('rExpenseRatio').textContent=ratio.toFixed(1)+'%';
+  document.getElementById('rTxCount').textContent=state.transactions.length;
+  document.getElementById('rTopCategory').textContent=top?cap(top[0]):'-';
+
+  renderMoneyShareChart('reportShareChart',inc,out);
   renderExpenseChart();
+  renderCategoryBreakdown('reportCategoryBreakdown',state.transactions.filter(t=>t.type==='expense'));
+  document.getElementById('summary').innerHTML =
+    `<div class="health">
+      <div class="health-row"><span>uang masuk</span><b class="green">${incPct.toFixed(1)}%</b></div>
+      <div class="health-row"><span>uang keluar</span><b class="red">${outPct.toFixed(1)}%</b></div>
+      <div class="health-row"><span>expense ratio</span><b>${ratio.toFixed(1)}%</b></div>
+      <div class="health-row"><span>kategori terbesar</span><b>${top?cap(top[0]):'-'}</b></div>
+      <div class="health-row"><span>target aktif</span><b class="green">${state.goals.length}</b></div>
+    </div>`;
 }
 
 function renderCashflow() {
@@ -1152,6 +1316,29 @@ document.getElementById('txForm').addEventListener('submit', async function (e) 
   }
 });
 
+document.getElementById('editTxForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const btn = this.querySelector('button[type="submit"]');
+  const tx = {
+    id: document.getElementById('editTxId').value,
+    type: document.getElementById('editTxType').value,
+    amount: parseFloat(document.getElementById('editTxAmount').value),
+    category: document.getElementById('editTxCategory').value,
+    date: document.getElementById('editTxDate').value,
+    note: document.getElementById('editTxNote').value.trim()
+  };
+  if (!tx.amount || tx.amount <= 0 || !tx.date || !tx.note) { toast('data belum lengkap'); return; }
+  btn.disabled = true;
+  try {
+    await updateTransaction(tx);
+    const idx = state.transactions.findIndex(t => String(t.id) === String(tx.id));
+    if (idx >= 0) state.transactions[idx] = tx;
+    save(); closeEditTx(); toast('transaksi berhasil diperbarui'); refreshActivePage();
+  } catch(e) {
+    console.error('edit transaksi:', e); toast('gagal memperbarui transaksi: ' + (e.code || 'cek Firebase'));
+  } finally { btn.disabled = false; }
+});
+
 document.getElementById('goalForm').addEventListener('submit', async function (e) {
   e.preventDefault();
   const btn = this.querySelector('button[type="submit"]');
@@ -1185,6 +1372,7 @@ document.getElementById('goalForm').addEventListener('submit', async function (e
 window.addEventListener('click', function (e) {
   if (e.target === document.getElementById('txModal')) closeTx();
   if (e.target === document.getElementById('goalModal')) closeGoal();
+  if (e.target === document.getElementById('editTxModal')) closeEditTx();
   if (e.target === document.getElementById('deleteTxModal')) closeDeleteManager();
 });
 
