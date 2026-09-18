@@ -9,7 +9,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
 :root{
@@ -99,8 +98,9 @@ button,input,select{font:inherit}button{cursor:pointer}button:disabled{opacity:.
 .pill.green-pill{background:var(--greenSoft);color:var(--green)}
 .pill.red-pill{background:var(--redSoft);color:var(--red)}
 .chart-duo{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.category-track{height:9px;background:var(--soft);border-radius:99px;overflow:hidden}.category-fill{height:100%;background:var(--green);border-radius:99px}.category-row{display:grid;grid-template-columns:110px 1fr 90px;gap:10px;align-items:center;margin:10px 0}.category-row strong{text-align:right;font-size:12px}
 .chart-card{background:var(--card);border:2px solid var(--line);border-radius:18px;padding:18px;box-shadow:var(--shadowSm)}
-.chart-small{height:230px;position:relative}
+.chart-small{height:230px;position:relative}.svg-chart{width:100%;height:100%;min-height:210px;position:relative}.svg-chart svg{width:100%;height:100%;display:block}.chart-empty{height:100%;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:12px;font-weight:700;text-align:center;padding:20px}
 .section-label{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin-bottom:8px}
 .quick-actions{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
 .quick-btn{border:2px solid var(--line);background:var(--card);color:var(--text);border-radius:14px;padding:13px;text-align:left;box-shadow:var(--shadowSm);font-size:10px;font-weight:900}
@@ -181,8 +181,8 @@ button,input,select{font:inherit}button{cursor:pointer}button:disabled{opacity:.
     </div>
 
     <div class="chart-duo">
-      <div class="chart-card"><div class="card-head"><div><div class="card-title">uang masuk vs uang keluar</div><div class="card-sub">persentase komposisi bulan berjalan</div></div></div><div class="chart-small"><canvas id="moneyShareChart"></canvas></div></div>
-      <div class="chart-card"><div class="card-head"><div><div class="card-title">cashflow 6 bulan</div><div class="card-sub">pergerakan pemasukan dan pengeluaran</div></div></div><div class="chart-small"><canvas id="cashflowChart"></canvas></div></div>
+      <div class="chart-card"><div class="card-head"><div><div class="card-title">uang masuk vs uang keluar</div><div class="card-sub">persentase komposisi bulan berjalan</div></div></div><div class="chart-small"><div id="moneyShareChart" class="svg-chart"></div></div></div>
+      <div class="chart-card"><div class="card-head"><div><div class="card-title">cashflow 6 bulan</div><div class="card-sub">pergerakan pemasukan dan pengeluaran</div></div></div><div class="chart-small"><div id="cashflowChart" class="svg-chart"></div></div></div>
     </div>
 
     <div class="grid2">
@@ -235,8 +235,8 @@ button,input,select{font:inherit}button{cursor:pointer}button:disabled{opacity:.
     </div>
 
     <div class="chart-duo">
-      <div class="chart-card"><div class="card-head"><div><div class="card-title">komposisi uang</div><div class="card-sub">persentase pemasukan vs pengeluaran</div></div></div><div class="chart-small"><canvas id="reportShareChart"></canvas></div></div>
-      <div class="chart-card"><div class="card-head"><div><div class="card-title">komposisi pengeluaran</div><div class="card-sub">berdasarkan kategori</div></div></div><div class="chart-small"><canvas id="expenseChart"></canvas></div></div>
+      <div class="chart-card"><div class="card-head"><div><div class="card-title">komposisi uang</div><div class="card-sub">persentase pemasukan vs pengeluaran</div></div></div><div class="chart-small"><div id="reportShareChart" class="svg-chart"></div></div></div>
+      <div class="chart-card"><div class="card-head"><div><div class="card-title">komposisi pengeluaran</div><div class="card-sub">berdasarkan kategori</div></div></div><div class="chart-small"><div id="expenseChart" class="svg-chart"></div></div></div>
     </div>
 
     <div class="grid2">
@@ -1206,75 +1206,117 @@ function renderReports() {
     </div>`;
 }
 
-function renderCashflow() {
-  const ctx = document.getElementById('cashflowChart');
-  if (!ctx) return;
-  if (cashChart) cashChart.destroy();
-  const labels = [], ins = [], outs = [], now = new Date();
-
-  for (let i = 5; i >= 0; i--) {
-    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    const k = monthKey(d);
-    labels.push(d.toLocaleDateString('id-ID', { month: 'short' }));
-    ins.push(state.transactions.filter(t => t.date.startsWith(k) && t.type === 'income').reduce((a, t) => a + Number(t.amount), 0));
-    outs.push(state.transactions.filter(t => t.date.startsWith(k) && t.type === 'expense').reduce((a, t) => a + Number(t.amount), 0));
-  }
-
-  cashChart = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels,
-      datasets: [
-        { label: 'Pemasukan', data: ins, borderColor: '#16834b', backgroundColor: '#16834b', borderWidth: 2, tension: .35 },
-        { label: 'Pengeluaran', data: outs, borderColor: '#d64545', backgroundColor: '#d64545', borderWidth: 2, tension: .35 }
-      ]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      interaction: { mode: 'index', intersect: false },
-      plugins: {
-        legend: { position: 'bottom' },
-        tooltip: { callbacks: { label: c => c.dataset.label + ': ' + money(c.raw) } }
-      },
-      scales: {
-        y: { beginAtZero: true, ticks: { callback: v => v >= 1e6 ? (v / 1e6) + ' jt' : v >= 1e3 ? (v / 1e3) + ' rb' : v } }
-      }
-    }
-  });
+function svgEsc(v){
+  return String(v ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
-function renderExpenseChart() {
-  const ctx = document.getElementById('expenseChart');
-  if (!ctx) return;
-  if (expChart) expChart.destroy();
-  const map = {};
-  state.transactions.filter(t => t.type === 'expense').forEach(t => map[t.category] = (map[t.category] || 0) + Number(t.amount));
+function renderMoneyShareChart(id, income, expense){
+  const el = document.getElementById(id);
+  if (!el) return;
+  income = Number(income) || 0;
+  expense = Number(expense) || 0;
+  const totalFlow = income + expense;
+  if (!totalFlow) {
+    el.innerHTML = '<div class="chart-empty">belum ada data pemasukan atau pengeluaran bulan ini.</div>';
+    return;
+  }
 
-  expChart = new Chart(ctx, {
-    type: 'doughnut',
-    data: {
-      labels: Object.keys(map).map(cap),
-      datasets: [{
-        data: Object.values(map),
-        backgroundColor: ['#16834b', '#2a9d8f', '#e76f51', '#f4a261', '#e9c46a', '#457b9d', '#8d99ae', '#d64545', '#9b5de5'],
-        borderWidth: 0
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { position: 'bottom' },
-        tooltip: { callbacks: { label: c => c.label + ': ' + money(c.raw) } }
-      }
-    }
-  });
+  const incPct = income / totalFlow * 100;
+  const outPct = expense / totalFlow * 100;
+  const r = 72, c = 2 * Math.PI * r;
+  const incLen = c * incPct / 100;
+  const outLen = c * outPct / 100;
+  el.innerHTML = `
+    <svg viewBox="0 0 420 240" role="img" aria-label="komposisi uang masuk dan uang keluar">
+      <g transform="translate(210 104) rotate(-90)">
+        <circle r="${r}" fill="none" stroke="#e7eee9" stroke-width="28"></circle>
+        <circle r="${r}" fill="none" stroke="#16834b" stroke-width="28"
+          stroke-dasharray="${incLen} ${c-incLen}" stroke-linecap="butt"></circle>
+        <circle r="${r}" fill="none" stroke="#d64545" stroke-width="28"
+          stroke-dasharray="${outLen} ${c-outLen}" stroke-dashoffset="${-incLen}" stroke-linecap="butt"></circle>
+      </g>
+      <text x="210" y="96" text-anchor="middle" font-size="13" font-weight="800" fill="currentColor">arus uang</text>
+      <text x="210" y="120" text-anchor="middle" font-size="15" font-weight="900" fill="currentColor">${incPct.toFixed(1)}% / ${outPct.toFixed(1)}%</text>
+      <g transform="translate(72 212)">
+        <circle cx="0" cy="-4" r="6" fill="#16834b"></circle>
+        <text x="12" y="0" font-size="11" font-weight="800" fill="currentColor">uang masuk ${money(income)}</text>
+        <circle cx="205" cy="-4" r="6" fill="#d64545"></circle>
+        <text x="217" y="0" font-size="11" font-weight="800" fill="currentColor">uang keluar ${money(expense)}</text>
+      </g>
+    </svg>`;
+}
+
+function renderCashflow(){
+  const el = document.getElementById('cashflowChart');
+  if (!el) return;
+  const labels=[], ins=[], outs=[], now=new Date();
+
+  for(let i=5;i>=0;i--){
+    const d=new Date(now.getFullYear(),now.getMonth()-i,1);
+    const k=monthKey(d);
+    labels.push(d.toLocaleDateString('id-ID',{month:'short'}));
+    ins.push(state.transactions.filter(t => String(t.date||'').startsWith(k) && t.type==='income').reduce((a,t)=>a+(Number(t.amount)||0),0));
+    outs.push(state.transactions.filter(t => String(t.date||'').startsWith(k) && t.type==='expense').reduce((a,t)=>a+(Number(t.amount)||0),0));
+  }
+
+  const max=Math.max(...ins,...outs,1);
+  const W=760,H=260,L=52,R=20,T=20,B=48;
+  const plotW=W-L-R, plotH=H-T-B;
+  const x=i => L + (labels.length===1 ? plotW/2 : i*plotW/(labels.length-1));
+  const y=v => T + plotH - (v/max)*plotH;
+  const path = arr => arr.map((v,i)=>(i?'L':'M')+' '+x(i).toFixed(1)+' '+y(v).toFixed(1)).join(' ');
+  const moneyShort=v => v>=1e9 ? (v/1e9).toFixed(1)+' M' : v>=1e6 ? (v/1e6).toFixed(1)+' jt' : v>=1e3 ? (v/1e3).toFixed(0)+' rb' : String(Math.round(v));
+  const grid=[0,.25,.5,.75,1].map(p=>{
+    const yy=T+plotH*(1-p);
+    return `<line x1="${L}" y1="${yy}" x2="${W-R}" y2="${yy}" stroke="#dfe8e2" stroke-width="1"/><text x="${L-8}" y="${yy+4}" text-anchor="end" font-size="9" fill="#68776e">${moneyShort(max*p)}</text>`;
+  }).join('');
+  const dots=(arr,stroke)=>arr.map((v,i)=>`<circle cx="${x(i)}" cy="${y(v)}" r="3.5" fill="${stroke}"></circle>`).join('');
+
+  el.innerHTML=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="cashflow enam bulan">
+    ${grid}
+    <path d="${path(ins)}" fill="none" stroke="#16834b" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="${path(outs)}" fill="none" stroke="#d64545" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+    ${dots(ins,'#16834b')}${dots(outs,'#d64545')}
+    ${labels.map((m,i)=>`<text x="${x(i)}" y="${H-20}" text-anchor="middle" font-size="10" font-weight="800" fill="currentColor">${svgEsc(m)}</text>`).join('')}
+    <g transform="translate(${W-210} 12)">
+      <circle cx="0" cy="0" r="5" fill="#16834b"></circle><text x="10" y="4" font-size="10" font-weight="800" fill="currentColor">pemasukan</text>
+      <circle cx="92" cy="0" r="5" fill="#d64545"></circle><text x="102" y="4" font-size="10" font-weight="800" fill="currentColor">pengeluaran</text>
+    </g>
+  </svg>`;
+}
+
+function renderExpenseChart(){
+  const el=document.getElementById('expenseChart');
+  if(!el) return;
+  const map={};
+  state.transactions.filter(t=>t.type==='expense').forEach(t=>map[t.category||'lainnya']=(map[t.category||'lainnya']||0)+(Number(t.amount)||0));
+  const rows=Object.entries(map).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  if(!rows.length){
+    el.innerHTML='<div class="chart-empty">belum ada data pengeluaran.</div>';
+    return;
+  }
+  const max=rows[0][1]||1;
+  el.innerHTML=`<div style="height:100%;overflow:auto;padding:4px 2px 4px 0">${rows.map(([cat,val])=>{
+    const w=Math.max(4,val/max*100);
+    return `<div style="display:grid;grid-template-columns:92px 1fr 88px;gap:9px;align-items:center;margin:12px 0;font-size:10px;font-weight:800">
+      <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${svgEsc(cap(cat))}</span>
+      <div style="height:12px;background:#e9f0eb;border:1px solid #17351f;border-radius:99px;overflow:hidden"><div style="height:100%;width:${w}%;background:#16834b"></div></div>
+      <strong style="text-align:right">${money(val)}</strong>
+    </div>`;
+  }).join('')}</div>`;
 }
 
 function renderCharts() {
-  if (document.getElementById('page-dashboard').classList.contains('active')) renderCashflow();
-  if (document.getElementById('page-reports').classList.contains('active')) renderExpenseChart();
+  const dash = document.getElementById('page-dashboard');
+  const reports = document.getElementById('page-reports');
+  if (dash && dash.classList.contains('active')) {
+    renderCashflow();
+    renderMoneyShareChart('moneyShareChart', monthly('income'), monthly('expense'));
+  }
+  if (reports && reports.classList.contains('active')) {
+    renderExpenseChart();
+    renderMoneyShareChart('reportShareChart', total('income'), total('expense'));
+  }
 }
 
 // Event Listeners Initialization
