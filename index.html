@@ -847,105 +847,119 @@ function downloadPDF() {
 
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+    const W = 210, H = 297, M = 14;
+    const C = {
+      green: [25, 182, 106], greenDark: [15, 143, 80],
+      ink: [16, 23, 19], muted: [104, 119, 110],
+      soft: [232, 255, 242], yellow: [255, 212, 59],
+      red: [214, 69, 69], redSoft: [255, 240, 240],
+      line: [220, 228, 222], white: [255,255,255], bg: [247,247,242]
+    };
+    const today = new Date();
+    const printed = today.toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' });
+    const inc = total('income'), out = total('expense'), net = inc - out;
+    const sav = state.transactions.filter(t => t.type === 'expense' && t.category === 'tabungan').reduce((a,t)=>a+Number(t.amount),0);
+    const tx = [...state.transactions].sort((a,b)=>b.date.localeCompare(a.date) || String(b.id).localeCompare(String(a.id)));
 
-    doc.setFillColor(22, 131, 75);
-    doc.rect(0, 0, 210, 24, 'F');
-    doc.setTextColor(255, 255, 255);
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(16);
-    doc.text('Adit Finance - Laporan Keuangan', 14, 16);
+    function fill(rgb){doc.setFillColor(...rgb)}
+    function text(rgb){doc.setTextColor(...rgb)}
+    function line(rgb){doc.setDrawColor(...rgb)}
+    function roundedCard(x,y,w,h,fillColor=C.white,stroke=C.line,r=4){
+      fill(fillColor); line(stroke); doc.setLineWidth(.35); doc.roundedRect(x,y,w,h,r,r,'FD');
+    }
+    function sectionTitle(label, y){
+      text(C.ink); doc.setFont('helvetica','bold'); doc.setFontSize(11); doc.text(label, M, y);
+      line(C.green); doc.setLineWidth(1.2); doc.line(M, y+3, M+12, y+3);
+    }
+    function moneyShort(n){ return money(n).replace('Rp','Rp '); }
+    function addPageHeader(){
+      fill(C.green); doc.rect(0,0,W,13,'F');
+      text(C.white); doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.text('ADIT FINANCE',M,8.3);
+      doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.text('Laporan Keuangan Pribadi',W-M,8.3,{align:'right'});
+    }
+    function footer(page,totalPages){
+      line(C.line); doc.setLineWidth(.3); doc.line(M,H-13,W-M,H-13);
+      text(C.muted); doc.setFont('helvetica','normal'); doc.setFontSize(7);
+      doc.text('Adit Finance • laporan pribadi',M,H-7);
+      doc.text(`Halaman ${page} / ${totalPages}`,W-M,H-7,{align:'right'});
+    }
 
-    doc.setTextColor(23, 35, 29);
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'normal');
-    doc.text('Tanggal Cetak: ' + new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }), 14, 34);
+    // Cover / executive summary
+    fill(C.bg); doc.rect(0,0,W,H,'F');
+    fill(C.green); doc.rect(0,0,W,58,'F');
+    fill(C.yellow); doc.roundedRect(W-M-28,12,28,28,6,6,'F');
+    text(C.ink); doc.setFont('helvetica','bold'); doc.setFontSize(15); doc.text('AF',W-M-14,29,{align:'center'});
+    text(C.white); doc.setFont('helvetica','bold'); doc.setFontSize(23); doc.text('Adit Finance',M,24);
+    doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.text('Laporan Keuangan Pribadi',M,33);
+    doc.setFontSize(8); doc.text('Ringkasan kondisi keuangan & perkembangan target',M,42);
+    text(C.muted); doc.setFontSize(8); doc.text('Tanggal laporan',M,70);
+    text(C.ink); doc.setFont('helvetica','bold'); doc.setFontSize(11); doc.text(printed,M,78);
 
-    const inc = total('income');
-    const out = total('expense');
-    const net = inc - out;
-    const sav = state.transactions.filter(t => t.type === 'expense' && t.category === 'tabungan').reduce((a, t) => a + Number(t.amount), 0);
+    roundedCard(M,90,W-2*M,39,C.white);
+    text(C.muted); doc.setFont('helvetica','bold'); doc.setFontSize(7); doc.text('SALDO BERSIH',M+7,99);
+    text(net>=0?C.green:C.red); doc.setFontSize(18); doc.text(moneyShort(net),M+7,110);
+    text(C.muted); doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.text('pemasukan dikurangi pengeluaran',M+7,119);
 
-    doc.setFont('helvetica', 'bold');
-    doc.text('Ringkasan Keuangan', 14, 44);
-    doc.setFont('helvetica', 'normal');
-    doc.text('Total Pemasukan   : ' + money(inc), 14, 52);
-    doc.text('Total Pengeluaran : ' + money(out), 14, 59);
-    doc.text('Saldo Bersih       : ' + money(net), 14, 66);
-    doc.text('Total Tabungan     : ' + money(sav), 14, 73);
+    const cards = [
+      ['PEMASUKAN',inc,C.green], ['PENGELUARAN',out,C.red], ['TABUNGAN',sav,C.green]
+    ];
+    cards.forEach((c,i)=>{
+      const x=M+i*60.5; roundedCard(x,136,56,32,C.white);
+      text(C.muted); doc.setFont('helvetica','bold'); doc.setFontSize(6.5); doc.text(c[0],x+5,145);
+      text(c[2]); doc.setFontSize(10); doc.text(moneyShort(c[1]),x+5,155);
+      text(C.muted); doc.setFont('helvetica','normal'); doc.setFontSize(6.5); doc.text('total tercatat',x+5,163);
+    });
 
-    let y = 87;
-    doc.setFont('helvetica', 'bold');
-    doc.text('Target Keuangan', 14, y);
-    y += 7;
-    doc.setFont('helvetica', 'normal');
-
-    if (!state.goals.length) {
-      doc.text('Belum ada target keuangan.', 14, y);
-      y += 10;
+    sectionTitle('Target Keuangan',184);
+    let y=192;
+    if(!state.goals.length){
+      text(C.muted); doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.text('Belum ada target keuangan.',M,y); y+=12;
     } else {
-      state.goals.forEach(g => {
-        if (y > 265) { doc.addPage(); y = 20; }
-        const progress = pct(g.current, g.target);
-        doc.setFont('helvetica', 'bold');
-        doc.text(String(g.name).substring(0, 38), 14, y);
-        doc.setFont('helvetica', 'normal');
-        doc.text(money(g.current) + ' / ' + money(g.target) + ' (' + progress.toFixed(1) + '%)', 14, y + 6);
-        doc.text('Deadline: ' + dateID(g.deadline), 14, y + 12);
-        y += 20;
+      state.goals.forEach(g=>{
+        if(y>260){ doc.addPage(); addPageHeader(); y=25; }
+        const p=pct(g.current,g.target);
+        roundedCard(M,y,W-2*M,25,C.white);
+        text(C.ink); doc.setFont('helvetica','bold'); doc.setFontSize(8.5); doc.text(String(g.name).substring(0,42),M+6,y+8);
+        text(C.green); doc.setFontSize(8); doc.text(p.toFixed(1)+'%',W-M-6,y+8,{align:'right'});
+        text(C.muted); doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.text(`${moneyShort(g.current)} dari ${moneyShort(g.target)}`,M+6,y+15);
+        doc.text('deadline '+dateID(g.deadline),M+6,y+21);
+        fill([235,240,236]); doc.roundedRect(M+105,y+14,74,3,1.5,1.5,'F');
+        fill(C.green); doc.roundedRect(M+105,y+14,74*Math.min(p,100)/100,3,1.5,1.5,'F');
+        y+=30;
       });
     }
 
-    if (y > 255) { doc.addPage(); y = 20; }
-    doc.setFont('helvetica', 'bold');
-    doc.text('Riwayat Transaksi', 14, y);
-    y += 8;
-    doc.setFontSize(8.5);
-    doc.text('Tanggal', 14, y);
-    doc.text('Jenis', 42, y);
-    doc.text('Kategori', 70, y);
-    doc.text('Keterangan', 105, y);
-    doc.text('Nominal', 165, y);
-    doc.line(14, y + 2, 196, y + 2);
-    y += 8;
+    // Transactions section, with automatic pages and table styling
+    if(y>255){doc.addPage();addPageHeader();y=25;}
+    sectionTitle('Riwayat Transaksi',y); y+=9;
+    const cols=[M,M+27,M+58,M+91,M+145];
+    fill(C.ink); doc.roundedRect(M,y,W-2*M,8,2,2,'F');
+    text(C.white); doc.setFont('helvetica','bold'); doc.setFontSize(6.5);
+    ['Tanggal','Jenis','Kategori','Keterangan','Nominal'].forEach((h,i)=>doc.text(h,cols[i]+3,y+5.3));
+    y+=11;
+    if(!tx.length){text(C.muted);doc.setFont('helvetica','normal');doc.setFontSize(8);doc.text('Belum ada transaksi.',M,y);}
+    else tx.forEach((t,idx)=>{
+      if(y>276){doc.addPage();addPageHeader();y=25;fill(C.ink);doc.roundedRect(M,y,W-2*M,8,2,2,'F');text(C.white);doc.setFont('helvetica','bold');doc.setFontSize(6.5);['Tanggal','Jenis','Kategori','Keterangan','Nominal'].forEach((h,i)=>doc.text(h,cols[i]+3,y+5.3));y+=11;}
+      if(idx%2===0){fill([249,251,249]);doc.rect(M,y-4,W-2*M,8,'F');}
+      text(C.ink);doc.setFont('helvetica','normal');doc.setFontSize(6.8);
+      doc.text(dateID(t.date),cols[0]+3,y);
+      doc.text(t.type==='income'?'Pemasukan':'Pengeluaran',cols[1]+3,y);
+      doc.text(cap(t.category).substring(0,14),cols[2]+3,y);
+      let note=String(t.note||'-'); if(note.length>27) note=note.substring(0,25)+'...'; doc.text(note,cols[3]+3,y);
+      text(t.type==='income'?C.green:C.red); doc.setFont('helvetica','bold'); doc.text((t.type==='income'?'+ ':'- ')+moneyShort(t.amount),cols[4]+3,y);
+      y+=7;
+    });
 
-    const list = [...state.transactions].sort((a, b) => b.date.localeCompare(a.date) || String(b.id).localeCompare(String(a.id)));
-    if (!list.length) {
-      doc.setFont('helvetica', 'normal');
-      doc.text('Belum ada transaksi.', 14, y);
-    } else {
-      list.forEach(t => {
-        if (y > 275) { doc.addPage(); y = 20; }
-        const sign = t.type === 'income' ? '+' : '-';
-        doc.setFont('helvetica', 'normal');
-        doc.text(dateID(t.date), 14, y);
-        doc.text(t.type === 'income' ? 'Pemasukan' : 'Pengeluaran', 42, y);
-        doc.text(cap(t.category), 70, y);
-        let note = String(t.note || '-');
-        if (note.length > 22) note = note.substring(0, 20) + '...';
-        doc.text(note, 105, y);
-        doc.text(sign + money(t.amount), 165, y);
-        y += 7;
-      });
-    }
-
-    const pages = doc.getNumberOfPages();
-    for (let i = 1; i <= pages; i++) {
-      doc.setPage(i);
-      doc.setFontSize(8);
-      doc.setTextColor(113, 128, 120);
-      doc.text('Adit Finance', 14, 290);
-      doc.text('Halaman ' + i + ' / ' + pages, 170, 290);
-    }
-
-    doc.save('Laporan_Keuangan_' + new Date().toISOString().slice(0, 10) + '.pdf');
+    const pages=doc.getNumberOfPages();
+    for(let i=1;i<=pages;i++){doc.setPage(i);footer(i,pages);}
+    doc.save('Laporan_Keuangan_Adit_Finance_'+today.toISOString().slice(0,10)+'.pdf');
     toast('Laporan PDF berhasil diunduh');
-  } catch (e) {
-    console.error('PDF:', e);
+  } catch(e){
+    console.error('PDF:',e);
     toast('Gagal membuat PDF, membuka tampilan cetak...');
     window.print();
   }
 }
-
 // Render Functions
 function renderDashboard() {
   const inc = monthly('income');
