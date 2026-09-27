@@ -159,6 +159,7 @@ body{background:var(--bg);color:var(--ink)}
   <nav class="nav">
     <button class="active" data-page="dashboard">Dashboard</button>
     <button data-page="transactions">Transaksi</button>
+    <button data-page="budget">Gaji & Alokasi</button>
     <button data-page="goals">Target Keuangan</button>
     <button data-page="reports">Laporan</button>
   </nav>
@@ -176,6 +177,14 @@ body{background:var(--bg);color:var(--ink)}
       <div class="stat"><label>Arus Bersih Bulan Ini</label><strong id="mNet">Rp0</strong><small>pemasukan dikurangi pengeluaran</small></div>
       <div class="stat"><label>Rasio Pengeluaran</label><strong id="expenseRatio">0%</strong><small>dari pemasukan bulan ini</small></div>
     </div>
+    <div class="card" style="margin-bottom:18px">
+      <div class="card-head"><div><div class="card-title">Gaji & Budget Bulan Ini</div><div class="card-sub">Alokasi kebutuhan wajib dan sisa budget</div></div><button class="btn secondary" onclick="navigate('budget')">Kelola Budget</button></div>
+      <div class="report-grid" style="margin-bottom:0">
+        <div class="report-card"><div class="report-label">Gaji</div><span class="report-value green" id="dashSalary">Rp0</span></div>
+        <div class="report-card"><div class="report-label">Total Alokasi</div><span class="report-value" id="dashAllocated">Rp0</span></div>
+        <div class="report-card"><div class="report-label">Sisa Budget</div><span class="report-value" id="dashBudgetLeft">Rp0</span></div>
+      </div>
+    </div>
     <div class="kpi-extra">
       <div class="mini-kpi"><label>Uang Masuk</label><strong class="green" id="dashIncomeShare">0%</strong><small>proporsi dari seluruh arus bulan ini</small></div>
       <div class="mini-kpi"><label>Uang Keluar</label><strong class="red" id="dashExpenseShare">0%</strong><small>proporsi dari seluruh arus bulan ini</small></div>
@@ -190,6 +199,30 @@ body{background:var(--bg);color:var(--ink)}
       <div class="card"><div class="card-head"><div><div class="card-title">Transaksi Terbaru</div><div class="card-sub">aktivitas keuangan terakhir</div></div><button class="btn secondary" onclick="navigate('transactions')">Semua Transaksi</button></div><div class="transactions" id="recent"></div></div>
     </div>
 </section>
+
+  <section class="page" id="page-budget">
+    <div class="topbar"><div><h1 class="title">Gaji & Alokasi</h1><p class="desc">Atur gaji tetap dan bagi ke pos kebutuhan wajib.</p></div><div class="actions"><button class="btn primary" onclick="openBudget()">+ Atur Gaji & Budget</button></div></div>
+    <button class="btn primary mobile-add-btn" onclick="openBudget()">+ Atur Gaji & Budget</button>
+    <div class="stats">
+      <div class="stat"><label>Gaji Bulan Ini</label><strong class="green" id="budgetSalary">Rp0</strong><small>Gaji yang kamu masukkan</small></div>
+      <div class="stat"><label>Total Alokasi</label><strong id="budgetAllocated">Rp0</strong><small>Jumlah seluruh pos</small></div>
+      <div class="stat"><label>Belum Dialokasikan</label><strong id="budgetUnallocated">Rp0</strong><small>Sisa gaji setelah alokasi</small></div>
+      <div class="stat"><label>Status</label><strong id="budgetStatus" class="green">Aman</strong><small id="budgetStatusNote">Alokasi masih sesuai gaji</small></div>
+    </div>
+    <div class="grid2">
+      <div class="card"><div class="card-head"><div><div class="card-title">Kebutuhan Wajib</div><div class="card-sub">WiFi, Kuota, Makan, Bensin, dan Ngopi</div></div></div><div id="allocationList" class="goals"></div></div>
+      <div class="card"><div class="card-head"><div><div class="card-title">Batas Aman Harian</div><div class="card-sub">Sisa budget dibagi sisa hari sampai gajian berikutnya</div></div></div><div id="dailySafeList" class="goals"></div></div>
+    </div>
+    <div class="card" style="margin-top:18px"><div class="card-head"><div><div class="card-title">Cara Input dari Telegram</div><div class="card-sub">Backend Cloudflare nanti akan memakai struktur data yang sama</div></div></div>
+      <div style="display:grid;gap:8px;font-size:12px;line-height:1.6">
+        <div><b>/gaji 5000000</b> — menetapkan gaji bulan berjalan</div>
+        <div><b>/alokasi makan 800000</b> — menetapkan budget Makan</div>
+        <div><b>/alokasi bensin 400000</b> — menetapkan budget Bensin</div>
+        <div><b>/bayar makan 25000 nasi</b> — mencatat pengeluaran Makan</div>
+        <div><b>/saldo</b> — melihat kondisi budget dan saldo</div>
+      </div>
+    </div>
+  </section>
 
   <section class="page" id="page-transactions">
     <div class="topbar"><div><h1 class="title">Transaksi</h1><p class="desc">tambah, cari, filter, dan hapus transaksi</p></div><div class="actions"><button class="btn primary" onclick="openTx()">+ Tambah Transaksi</button></div></div>
@@ -210,7 +243,7 @@ body{background:var(--bg);color:var(--ink)}
   </section>
 </main>
 </div>
-<nav class="bottom-nav"><button class="active" data-page="dashboard">Dashboard</button><button data-page="transactions">Transaksi</button><button data-page="goals">Target</button><button data-page="reports">Laporan</button></nav>
+<nav class="bottom-nav"><button class="active" data-page="dashboard">Dashboard</button><button data-page="transactions">Transaksi</button><button data-page="budget">Budget</button><button data-page="reports">Laporan</button></nav>
 
 <div class="modal" id="txModal"><div class="modal-box"><div class="modal-head"><div class="modal-title">Tambah Transaksi</div><button class="close" onclick="closeTx()">×</button></div><form id="txForm">
   <div class="field"><label>Jenis Transaksi</label><select class="select" id="txType" required><option value="income">Pemasukan</option><option value="expense">Pengeluaran</option></select></div>
@@ -221,6 +254,17 @@ body{background:var(--bg);color:var(--ink)}
   <div class="form-actions"><button type="button" class="btn secondary" onclick="closeTx()">Batal</button><button class="btn primary" type="submit">Simpan Transaksi</button></div>
 </form></div></div>
 
+<div class="modal" id="budgetModal"><div class="modal-box"><div class="modal-head"><div class="modal-title">Atur Gaji & Alokasi</div><button class="close" onclick="closeBudget()">×</button></div><form id="budgetForm">
+  <div class="field"><label>Bulan</label><input class="input" id="budgetMonth" type="month" required></div>
+  <div class="field"><label>Gaji Bulan Ini</label><input class="input" id="salaryInput" type="number" min="0" step="1" inputmode="numeric" placeholder="Contoh: 5000000" required></div>
+  <div class="field"><label>WiFi</label><input class="input allocation-input" data-cat="wifi" type="number" min="0" step="1" value="0"></div>
+  <div class="field"><label>Kuota</label><input class="input allocation-input" data-cat="kuota" type="number" min="0" step="1" value="0"></div>
+  <div class="field"><label>Makan</label><input class="input allocation-input" data-cat="makan" type="number" min="0" step="1" value="0"></div>
+  <div class="field"><label>Bensin</label><input class="input allocation-input" data-cat="bensin" type="number" min="0" step="1" value="0"></div>
+  <div class="field"><label>Ngopi</label><input class="input allocation-input" data-cat="ngopi" type="number" min="0" step="1" value="0"></div>
+  <div class="card" style="padding:13px;margin-top:8px"><div style="display:flex;justify-content:space-between;font-size:12px"><span>Total Alokasi</span><b id="modalAllocationTotal">Rp0</b></div><div style="display:flex;justify-content:space-between;font-size:12px;margin-top:7px"><span>Sisa Gaji</span><b id="modalSalaryLeft">Rp0</b></div></div>
+  <div class="form-actions"><button type="button" class="btn secondary" onclick="closeBudget()">Batal</button><button class="btn primary" type="submit">Simpan Budget</button></div>
+</form></div></div>
 <div class="modal" id="goalModal"><div class="modal-box"><div class="modal-head"><div class="modal-title">Tambah Target</div><button class="close" onclick="closeGoal()">×</button></div><form id="goalForm">
   <div class="field"><label>Nama Target</label><input class="input" id="goalName" maxlength="50" placeholder="contoh: Dana Rumah" required></div>
   <div class="field"><label>Target Dana</label><input class="input" id="goalTarget" type="number" min="1" step="1" placeholder="contoh: 100000000" required></div>
@@ -393,6 +437,13 @@ async function startFirebase() {
         FB.ready = true;
         closeAuthOverlay();
         firebaseStatus('terhubung • sinkronisasi realtime aktif', true);
+        FB.userRef().get().then(snap=>{
+          const u=snap.data()||{};
+          state.salaryByMonth=u.salaryByMonth||{};
+          state.allocationsByMonth=u.allocationsByMonth||{};
+          save();
+          refreshActivePage();
+        }).catch(err=>console.error('Load budget:',err));
         startRealtimeSync();
       } else {
         FB.uid = null;
@@ -571,6 +622,8 @@ const QUOTES = [
   'konsistensi kecil hari ini lebih berharga daripada niat besar yang tidak pernah dimulai.'
 ];
 const seed = {
+  salaryByMonth: {},
+  allocationsByMonth: {},
   transactions: [],
   goals: [
     { id: 1, name: 'Dana Rumah', target: 100000000, current: 15000000, deadline: '2030-12-31' },
@@ -622,6 +675,90 @@ function total(type) {
 function monthly(type) {
   const m = monthKey();
   return state.transactions.filter(x => x.date.startsWith(m) && x.type === type).reduce((a, x) => a + Number(x.amount), 0);
+}
+
+const REQUIRED_CATS = [
+  {id:'wifi', name:'WiFi'},
+  {id:'kuota', name:'Kuota'},
+  {id:'makan', name:'Makan'},
+  {id:'bensin', name:'Bensin'},
+  {id:'ngopi', name:'Ngopi'}
+];
+
+function currentSalary(){ return Number(state.salaryByMonth?.[monthKey()] || 0); }
+function currentAllocations(){ return {...(state.allocationsByMonth?.[monthKey()] || {})}; }
+function allocationTotal(){ return REQUIRED_CATS.reduce((s,c)=>s+Number(currentAllocations()[c.id]||0),0); }
+function daysUntilNextSalary(){
+  const now=new Date();
+  const today=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+  let next=new Date(now.getFullYear(),now.getMonth(),5);
+  if(today>=next) next=new Date(now.getFullYear(),now.getMonth()+1,5);
+  return Math.max(1,Math.ceil((next-today)/86400000));
+}
+function saveBudgetLocal(month,salary,allocations){
+  state.salaryByMonth=state.salaryByMonth||{};
+  state.allocationsByMonth=state.allocationsByMonth||{};
+  state.salaryByMonth[month]=Number(salary)||0;
+  state.allocationsByMonth[month]={...allocations};
+  save();
+}
+
+function renderBudget(){
+  const salary=currentSalary(), allocations=currentAllocations(), allocated=allocationTotal(), unallocated=salary-allocated;
+  document.getElementById('budgetSalary').textContent=money(salary);
+  document.getElementById('budgetAllocated').textContent=money(allocated);
+  document.getElementById('budgetUnallocated').textContent=money(Math.max(0,unallocated));
+  const status=document.getElementById('budgetStatus'), note=document.getElementById('budgetStatusNote');
+  if(unallocated<0){status.textContent='Over Alokasi';status.className='red';note.textContent='Total alokasi melebihi gaji';}
+  else if(unallocated===0){status.textContent='Terbagi 100%';status.className='green';note.textContent='Seluruh gaji sudah dialokasikan';}
+  else{status.textContent='Belum Penuh';status.className='green';note.textContent='Masih ada gaji yang belum dialokasikan';}
+  const list=document.getElementById('allocationList');
+  list.innerHTML=REQUIRED_CATS.map(c=>{
+    const b=Number(allocations[c.id]||0);
+    const spent=state.transactions.filter(t=>t.type==='expense'&&t.category===c.id&&t.date.startsWith(monthKey())).reduce((s,t)=>s+Number(t.amount||0),0);
+    const p=b?Math.min(100,spent/b*100):0;
+    const cls=p>=100?'red':p>=80?'warning':'green';
+    return `<div class="goal"><div class="goal-head"><span class="goal-name">${c.name}</span><span class="goal-pct ${cls}">${p.toFixed(0)}%</span></div><div class="goal-money">${money(spent)} terpakai dari ${money(b)}</div><div class="progress"><div class="bar" style="width:${p}%;background:${p>=100?'var(--red)':p>=80?'var(--yellow)':'var(--green)'}"></div></div><div class="goal-foot">Sisa ${money(Math.max(0,b-spent))}</div></div>`;
+  }).join('');
+  const days=daysUntilNextSalary();
+  document.getElementById('dailySafeList').innerHTML=REQUIRED_CATS.map(c=>{
+    const b=Number(allocations[c.id]||0);
+    const spent=state.transactions.filter(t=>t.type==='expense'&&t.category===c.id&&t.date.startsWith(monthKey())).reduce((s,t)=>s+Number(t.amount||0),0);
+    const remain=Math.max(0,b-spent);
+    return `<div class="goal"><div class="goal-head"><span class="goal-name">${c.name}</span><span class="goal-pct">${money(remain/days)}/hari</span></div><div class="goal-money">Sisa ${money(remain)} · ${days} hari</div></div>`;
+  }).join('');
+  const dS=document.getElementById('dashSalary'),dA=document.getElementById('dashAllocated'),dL=document.getElementById('dashBudgetLeft');
+  if(dS)dS.textContent=money(salary); if(dA)dA.textContent=money(allocated); if(dL)dL.textContent=money(Math.max(0,unallocated));
+}
+
+async function firebaseSaveBudget(month,salary,allocations){
+  if(!FB.ready)return;
+  const salaries={...(state.salaryByMonth||{}),[month]:Number(salary)||0};
+  const allAllocations={...(state.allocationsByMonth||{}),[month]:{...allocations}};
+  await FB.userRef().set({
+    salaryByMonth:salaries,
+    allocationsByMonth:allAllocations,
+    updatedAt:firebase.firestore.FieldValue.serverTimestamp()
+  },{merge:true});
+}
+
+function openBudget(){
+  const m=document.getElementById('budgetMonth');
+  m.value=monthKey();
+  const salary=Number(state.salaryByMonth?.[m.value]||0);
+  document.getElementById('salaryInput').value=salary||'';
+  const a=state.allocationsByMonth?.[m.value]||{};
+  document.querySelectorAll('.allocation-input').forEach(i=>i.value=Number(a[i.dataset.cat]||0));
+  updateBudgetModal();
+  document.getElementById('budgetModal').classList.add('show');
+}
+function closeBudget(){document.getElementById('budgetModal').classList.remove('show');}
+function updateBudgetModal(){
+  const salary=Number(document.getElementById('salaryInput').value)||0;
+  const total=[...document.querySelectorAll('.allocation-input')].reduce((s,i)=>s+(Number(i.value)||0),0);
+  document.getElementById('modalAllocationTotal').textContent=money(total);
+  document.getElementById('modalSalaryLeft').textContent=money(salary-total);
+  document.getElementById('modalSalaryLeft').className=salary-total<0?'red':'green';
 }
 
 function saving() {
@@ -679,6 +816,7 @@ function refreshActivePage() {
   if (!activePage) return;
   const pageId = activePage.id.replace('page-', '');
   if (pageId === 'dashboard') renderDashboard();
+  else if (pageId === 'budget') renderBudget();
   else if (pageId === 'transactions') renderTransactions();
   else if (pageId === 'goals') renderGoals();
   else if (pageId === 'reports') renderReports();
@@ -977,6 +1115,7 @@ function renderDashboard() {
   document.getElementById('mExpensePct').textContent = (flow ? (out/flow*100).toFixed(1) : '0.0') + '% dari arus uang';
   document.getElementById('mTxCount').textContent = txCount;
   document.getElementById('quote').textContent = QUOTES[new Date().getDate() % QUOTES.length];
+  renderBudget();
   renderDashGoals();
   renderRecent();
   renderCashflow();
@@ -1189,6 +1328,36 @@ document.getElementById('txForm').addEventListener('submit', async function (e) 
   }
 });
 
+document.querySelectorAll('.allocation-input').forEach(i=>i.addEventListener('input',updateBudgetModal));
+document.getElementById('salaryInput').addEventListener('input',updateBudgetModal);
+document.getElementById('budgetMonth').addEventListener('change',()=>{
+  const m=document.getElementById('budgetMonth');
+  const salary=Number(state.salaryByMonth?.[m.value]||0);
+  document.getElementById('salaryInput').value=salary||'';
+  const a=state.allocationsByMonth?.[m.value]||{};
+  document.querySelectorAll('.allocation-input').forEach(i=>i.value=Number(a[i.dataset.cat]||0));
+  updateBudgetModal();
+});
+document.getElementById('budgetForm').addEventListener('submit',async function(e){
+  e.preventDefault();
+  const btn=this.querySelector('button[type=submit]');
+  const month=document.getElementById('budgetMonth').value;
+  const salary=Number(document.getElementById('salaryInput').value)||0;
+  const allocations={};
+  document.querySelectorAll('.allocation-input').forEach(i=>allocations[i.dataset.cat]=Number(i.value)||0);
+  const total=Object.values(allocations).reduce((s,v)=>s+v,0);
+  if(!month||salary<0||total>salary){toast('Total alokasi tidak boleh melebihi gaji');return;}
+  btn.disabled=true;
+  try{
+    saveBudgetLocal(month,salary,allocations);
+    await firebaseSaveBudget(month,salary,allocations);
+    closeBudget();
+    toast(FB.ready?'Gaji & budget tersimpan ke Firebase':'Gaji & budget tersimpan di perangkat');
+    refreshActivePage();
+  }catch(err){console.error(err);toast('Gagal menyimpan Gaji & Budget ke Firebase');}
+  finally{btn.disabled=false;}
+});
+
 document.getElementById('goalForm').addEventListener('submit', async function (e) {
   e.preventDefault();
   const btn = this.querySelector('button[type="submit"]');
@@ -1221,11 +1390,13 @@ document.getElementById('goalForm').addEventListener('submit', async function (e
 
 window.addEventListener('click', function (e) {
   if (e.target === document.getElementById('txModal')) closeTx();
+  if (e.target === document.getElementById('budgetModal')) closeBudget();
   if (e.target === document.getElementById('goalModal')) closeGoal();
 });
 
 window.addEventListener('DOMContentLoaded', () => {
   initCategories();
+  document.getElementById('budgetMonth').value=monthKey();
   applyTheme();
   renderDashboard();
   startFirebase();
