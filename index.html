@@ -117,6 +117,49 @@ body{background:var(--bg);color:var(--text)}
 @media(max-width:1150px){.quick-chart-grid{grid-template-columns:1fr}.kpi-extra{grid-template-columns:1fr 1fr}}
 @media(max-width:800px){.quick-chart-grid{gap:12px}.chart-card-box{height:245px}.kpi-extra{grid-template-columns:1fr 1fr;gap:10px}.mini-kpi{padding:13px}.mini-kpi strong{font-size:16px}}
 @media(max-width:480px){.kpi-extra{grid-template-columns:1fr 1fr}.mini-kpi strong{font-size:14px}}
+
+/* Dashboard ringkas: optimasi tampilan desktop agar ringkasan utama terlihat dalam satu layar */
+@media(min-width:1151px){
+  .main{padding:18px 24px}
+  .topbar{margin-bottom:12px}
+  .title{font-size:25px}
+  .hero{padding:16px 22px;margin-bottom:12px;border-radius:17px;min-height:104px}
+  .balance{font-size:30px}
+  .quote{padding:10px 14px;max-width:420px;font-size:11px;line-height:1.45}
+  .quote small{margin-bottom:3px}
+  .stats{gap:10px;margin-bottom:12px}
+  .stat{padding:12px 14px;border-radius:14px}
+  .stat strong{font-size:18px;margin-top:5px}
+  .stat small{margin-top:4px}
+  .dash-budget-strip{display:grid;grid-template-columns:1.2fr repeat(3,1fr);align-items:center;gap:12px;background:var(--card);border:2px solid var(--line);border-radius:15px;padding:9px 14px;margin-bottom:12px;box-shadow:var(--shadowSm)}
+  .dash-budget-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:12px;font-weight:800}
+  .dash-budget-heading .btn{padding:7px 10px;font-size:10px}
+  .dash-budget-item{display:flex;align-items:center;justify-content:space-between;gap:8px;border-left:1px solid var(--line);padding-left:12px}
+  .dash-budget-item small{font-size:10px;color:var(--muted)}
+  .dash-budget-item strong{font-size:15px;white-space:nowrap}
+  .kpi-extra{gap:10px;margin-bottom:12px}
+  .mini-kpi{padding:9px 12px;border-radius:13px}
+  .mini-kpi strong{font-size:15px;margin-top:4px}
+  .mini-kpi small{font-size:8px;margin-top:3px}
+  .quick-chart-grid{gap:12px;margin-bottom:12px}
+  .quick-chart-grid .card{padding:12px 15px}
+  .quick-chart-grid .card-head{margin-bottom:6px}
+  .chart-card-box{height:135px!important}
+  .grid2{gap:12px;margin-bottom:12px}
+  .grid2 .card{padding:13px 15px}
+  .grid2 .card-head{margin-bottom:8px}
+  .goal{padding:9px}
+  .goals{gap:7px}
+  .tx{padding:8px 0}
+  .mark{width:29px;height:29px}
+}
+@media(max-width:1150px){
+  .dash-budget-strip{display:grid;grid-template-columns:1fr 1fr;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:15px;padding:13px;margin-bottom:14px}
+  .dash-budget-heading{grid-column:1/-1;display:flex;justify-content:space-between;align-items:center;font-size:12px;font-weight:800}
+  .dash-budget-item{display:flex;flex-direction:column;gap:4px}
+  .dash-budget-item small{font-size:10px;color:var(--muted)}
+  .dash-budget-item strong{font-size:15px}
+}
 </style>
 
 <style id="saweria-theme-overrides">
@@ -177,13 +220,11 @@ body{background:var(--bg);color:var(--ink)}
       <div class="stat"><label>Arus Bersih Bulan Ini</label><strong id="mNet">Rp0</strong><small>pemasukan dikurangi pengeluaran</small></div>
       <div class="stat"><label>Rasio Pengeluaran</label><strong id="expenseRatio">0%</strong><small>dari pemasukan bulan ini</small></div>
     </div>
-    <div class="card" style="margin-bottom:18px">
-      <div class="card-head"><div><div class="card-title">Gaji & Budget Bulan Ini</div><div class="card-sub">Alokasi kebutuhan wajib dan sisa budget</div></div><button class="btn secondary" onclick="navigate('budget')">Kelola Budget</button></div>
-      <div class="report-grid" style="margin-bottom:0">
-        <div class="report-card"><div class="report-label">Gaji</div><span class="report-value green" id="dashSalary">Rp0</span></div>
-        <div class="report-card"><div class="report-label">Total Alokasi</div><span class="report-value" id="dashAllocated">Rp0</span></div>
-        <div class="report-card"><div class="report-label">Sisa Budget</div><span class="report-value" id="dashBudgetLeft">Rp0</span></div>
-      </div>
+    <div class="dash-budget-strip">
+      <div class="dash-budget-heading"><span>Budget bulan ini</span><button class="btn secondary" onclick="navigate('budget')">Kelola</button></div>
+      <div class="dash-budget-item"><small>Gaji</small><strong class="green" id="dashSalary">Rp0</strong></div>
+      <div class="dash-budget-item"><small>Total alokasi</small><strong id="dashAllocated">Rp0</strong></div>
+      <div class="dash-budget-item"><small>Sisa budget</small><strong id="dashBudgetLeft">Rp0</strong></div>
     </div>
     <div class="kpi-extra">
       <div class="mini-kpi"><label>Uang Masuk</label><strong class="green" id="dashIncomeShare">0%</strong><small>proporsi dari seluruh arus bulan ini</small></div>
