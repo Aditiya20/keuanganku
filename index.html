@@ -742,6 +742,34 @@ async function firebaseSaveBudget(month,salary,allocations){
   },{merge:true});
 }
 
+// Sinkronisasi gaji dengan transaksi pemasukan: gunakan transaksi gaji yang sudah
+// ada bila ditemukan, agar input manual lama tidak dihitung dua kali.
+async function syncSalaryTransaction(month,salary){
+  const amount=Number(salary)||0;
+  const existing=[...state.transactions]
+    .filter(t=>t.type==='income' && t.category==='gaji' && String(t.date||'').startsWith(month))
+    .sort((a,b)=>String(a.date).localeCompare(String(b.date)) || String(a.id).localeCompare(String(b.id)))[0];
+  const tx={
+    id: existing ? String(existing.id) : `salary-budget-${month}`,
+    type:'income',
+    amount,
+    category:'gaji',
+    date: existing?.date || `${month}-05`,
+    note: existing?.note || `Gaji Bulan ${month}`
+  };
+  if(FB.ready){
+    await FB.transactionsRef().doc(tx.id).set({
+      type:tx.type, amount:tx.amount, category:tx.category, date:tx.date, note:tx.note,
+      salaryBudgetMonth:month,
+      createdAt:firebase.firestore.FieldValue.serverTimestamp()
+    },{merge:true});
+  }
+  const index=state.transactions.findIndex(t=>String(t.id)===tx.id);
+  if(index>=0) state.transactions[index]=tx;
+  else state.transactions.push(tx);
+  return tx;
+}
+
 function openBudget(){
   const m=document.getElementById('budgetMonth');
   m.value=monthKey();
@@ -1311,6 +1339,11 @@ document.getElementById('txForm').addEventListener('submit', async function (e) 
     return;
   }
 
+  if(type==='income' && category==='gaji' && Number(state.salaryByMonth?.[date.slice(0,7)]||0)===amount && state.transactions.some(t=>t.type==='income' && t.category==='gaji' && String(t.date||'').startsWith(date.slice(0,7)))){
+    toast('Gaji bulan ini sudah tercatat dari menu Gaji & Alokasi. Tidak perlu input dua kali.');
+    return;
+  }
+
   const tx = { id: String(Date.now()), type, amount, category, date, note };
   btn.disabled = true;
   try {
@@ -1351,10 +1384,12 @@ document.getElementById('budgetForm').addEventListener('submit',async function(e
   try{
     saveBudgetLocal(month,salary,allocations);
     await firebaseSaveBudget(month,salary,allocations);
+    await syncSalaryTransaction(month,salary);
+    save();
     closeBudget();
-    toast(FB.ready?'Gaji & budget tersimpan ke Firebase':'Gaji & budget tersimpan di perangkat');
+    toast(FB.ready?'Gaji, budget, dan saldo berhasil disinkronkan':'Gaji, budget, dan saldo tersimpan di perangkat');
     refreshActivePage();
-  }catch(err){console.error(err);toast('Gagal menyimpan Gaji & Budget ke Firebase');}
+  }catch(err){console.error('Simpan gaji/budget:',err);toast('Budget tersimpan lokal, tetapi sinkronisasi Firebase gagal. Periksa koneksi lalu coba lagi.');}
   finally{btn.disabled=false;}
 });
 
